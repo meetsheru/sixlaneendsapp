@@ -10,12 +10,29 @@
     <div class="container">
       <header>
         <h1>📊 Takeaway Earnings Tracker</h1>
-        <p class="subtitle">Track your daily earnings with audit history</p>
+        <p class="subtitle">Track your earnings and expenses</p>
       </header>
+
+      <!-- Balance Summary -->
+      <div class="balance-summary">
+        <div class="balance-card total-earnings">
+          <div class="balance-label">💰 Total Earnings</div>
+          <div class="balance-value" id="totalEarningsBalance">£0.00</div>
+        </div>
+        <div class="balance-card total-expenses">
+          <div class="balance-label">💸 Total Expenses</div>
+          <div class="balance-value" id="totalExpensesBalance">£0.00</div>
+        </div>
+        <div class="balance-card available-balance" id="balanceCard">
+          <div class="balance-label">✅ Available Balance</div>
+          <div class="balance-value" id="availableBalance">£0.00</div>
+        </div>
+      </div>
 
       <!-- Tab Navigation -->
       <div class="tab-navigation">
         <button class="tab-btn active" data-tab="earnings">💰 Earnings</button>
+        <button class="tab-btn" data-tab="expenses">💸 Expenses</button>
         <button class="tab-btn" data-tab="history">📜 History</button>
         <button class="tab-btn" data-tab="statistics">📊 Statistics</button>
       </div>
@@ -23,7 +40,6 @@
       <main>
         <!-- TAB 1: Earnings -->
         <div id="tab-earnings" class="tab-content active">
-          <!-- Add/Update Earning Form -->
           <section class="form-section">
             <h2>Add / Update Earnings</h2>
             <form id="earningForm">
@@ -62,22 +78,6 @@
             </form>
           </section>
 
-          <!-- Daily Summary -->
-          <section class="stats-section">
-            <h2>📊 Daily Summary</h2>
-            <div class="daily-summary">
-              <div class="summary-card">
-                <div class="summary-label">Today's Total</div>
-                <div class="summary-value" id="todayTotal">£0.00</div>
-              </div>
-              <div class="summary-card">
-                <div class="summary-label">Total Entries Today</div>
-                <div class="summary-value" id="todayEntries">0</div>
-              </div>
-            </div>
-          </section>
-
-          <!-- Recent Earnings List -->
           <section class="list-section">
             <h2>📋 Recent Earnings</h2>
             <div class="filter-section">
@@ -91,7 +91,62 @@
           </section>
         </div>
 
-        <!-- TAB 2: History / Audit -->
+        <!-- TAB 2: Expenses -->
+        <div id="tab-expenses" class="tab-content">
+          <section class="form-section">
+            <h2>💸 Add Expense / Transaction</h2>
+            <div id="expenseBalanceWarning" style="display: none; background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffc107;">
+              <strong>⚠️ Low Balance:</strong> <span id="expenseBalanceWarningText"></span>
+            </div>
+            <form id="expenseForm">
+              <div class="form-group">
+                <label for="expenseDateInput">Date</label>
+                <input type="date" id="expenseDateInput" required />
+              </div>
+              <div class="form-group">
+                <label for="expenseAmountInput">Amount (£)</label>
+                <input
+                  type="number"
+                  id="expenseAmountInput"
+                  step="0.01"
+                  min="0.01"
+                  placeholder="0.00"
+                  required
+                />
+                <small style="color: #666; display: block; margin-top: 5px;">Available balance: <strong id="expenseAvailableBalance">£0.00</strong></small>
+              </div>
+              <div class="form-group">
+                <label for="expenseReasonInput">Reason for Expense</label>
+                <input
+                  type="text"
+                  id="expenseReasonInput"
+                  placeholder="e.g., Staff lunch, Ingredients, Utilities"
+                  required
+                />
+              </div>
+              
+              <div class="form-actions">
+                <button type="submit" id="expenseSaveBtn">💸 Add Expense</button>
+              </div>
+              
+              <div id="expenseMessageContainer"></div>
+            </form>
+          </section>
+
+          <section class="list-section">
+            <h2>📋 Recent Expenses</h2>
+            <div class="filter-section">
+              <label for="expenseFilterDate">Filter by Date:</label>
+              <input type="date" id="expenseFilterDate" />
+              <button id="expenseClearFilterBtn">Clear Filter</button>
+            </div>
+            <div id="expensesList">
+              <p class="loading">Loading expenses...</p>
+            </div>
+          </section>
+        </div>
+
+        <!-- TAB 3: History / Audit -->
         <div id="tab-history" class="tab-content">
           <section class="history-section">
             <h2>📜 Audit History</h2>
@@ -121,7 +176,7 @@
           </section>
         </div>
 
-        <!-- TAB 3: Statistics -->
+        <!-- TAB 4: Statistics -->
         <div id="tab-statistics" class="tab-content">
           <section class="stats-section">
             <h2>📈 Overall Statistics</h2>
@@ -145,7 +200,20 @@
             </div>
           </section>
 
-          <!-- Weekly/Monthly Summary -->
+          <section class="stats-section">
+            <h2>📊 Expense Summary</h2>
+            <div class="stats-grid">
+              <div class="stat-card" style="background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);">
+                <div class="stat-label">Total Expenses</div>
+                <div class="stat-value" id="totalExpensesStat">£0.00</div>
+              </div>
+              <div class="stat-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                <div class="stat-label">Net Balance</div>
+                <div class="stat-value" id="netBalanceStat">£0.00</div>
+              </div>
+            </div>
+          </section>
+
           <section class="stats-section">
             <h2>📅 Period Summary</h2>
             <div class="period-summary">

@@ -12,9 +12,24 @@ CREATE TABLE IF NOT EXISTS earnings (
     CONSTRAINT earnings_date_time_unique UNIQUE (date, time)
 );
 
--- Create indexes
 CREATE INDEX IF NOT EXISTS idx_earnings_date ON earnings(date);
 CREATE INDEX IF NOT EXISTS idx_earnings_date_time ON earnings(date, time);
+
+-- ============================================
+-- EXPENSES TABLE (NEW)
+-- ============================================
+CREATE TABLE IF NOT EXISTS expenses (
+    id SERIAL PRIMARY KEY,
+    date DATE NOT NULL,
+    time TIME NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    reason TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(date);
+CREATE INDEX IF NOT EXISTS idx_expenses_date_time ON expenses(date, time);
 
 -- ============================================
 -- AUDIT TABLE
@@ -33,7 +48,6 @@ CREATE TABLE IF NOT EXISTS earnings_audit (
     changed_by VARCHAR(50) DEFAULT 'system'
 );
 
--- Create indexes for audit
 CREATE INDEX IF NOT EXISTS idx_audit_entry_id ON earnings_audit(entry_id);
 CREATE INDEX IF NOT EXISTS idx_audit_changed_at ON earnings_audit(changed_at);
 CREATE INDEX IF NOT EXISTS idx_audit_action ON earnings_audit(action);
@@ -50,8 +64,14 @@ INSERT INTO earnings (date, time, amount, description) VALUES
     (CURRENT_DATE, '19:00:00', 200.00, 'Today dinner sales')
 ON CONFLICT (date, time) DO NOTHING;
 
+-- Sample expenses
+INSERT INTO expenses (date, time, amount, reason) VALUES 
+    (CURRENT_DATE - INTERVAL '1 day', '10:00:00', 50.00, 'Staff lunch'),
+    (CURRENT_DATE, '09:00:00', 30.00, 'Ingredients purchase')
+ON CONFLICT DO NOTHING;
+
 -- ============================================
--- TRIGGER FUNCTION FOR UPDATED_AT
+-- TRIGGER FUNCTIONS
 -- ============================================
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -61,10 +81,15 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- Create trigger to update updated_at
 DROP TRIGGER IF EXISTS update_earnings_updated_at ON earnings;
 CREATE TRIGGER update_earnings_updated_at
     BEFORE UPDATE ON earnings
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_expenses_updated_at ON expenses;
+CREATE TRIGGER update_expenses_updated_at
+    BEFORE UPDATE ON expenses
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
@@ -99,16 +124,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create audit trigger
 DROP TRIGGER IF EXISTS earnings_audit_trigger ON earnings;
 CREATE TRIGGER earnings_audit_trigger
 AFTER INSERT OR UPDATE OR DELETE ON earnings
 FOR EACH ROW EXECUTE FUNCTION log_earnings_changes();
 
 -- ============================================
--- ADD SAMPLE AUDIT DATA (for testing)
+-- ADD SAMPLE AUDIT DATA
 -- ============================================
--- This creates some initial audit records based on the sample data
 INSERT INTO earnings_audit (entry_id, action, new_amount, new_description, new_time, changed_at)
 SELECT 
     id, 
@@ -124,5 +147,6 @@ ON CONFLICT DO NOTHING;
 -- ============================================
 -- VERIFY SETUP
 -- ============================================
-SELECT '✅ Audit table created successfully!' as status;
-SELECT COUNT(*) as audit_records FROM earnings_audit;
+SELECT '✅ Database setup complete!' as status;
+SELECT COUNT(*) as total_earnings FROM earnings;
+SELECT COUNT(*) as total_expenses FROM expenses;

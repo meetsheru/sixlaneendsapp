@@ -15,6 +15,32 @@ const filterDate = document.getElementById('filterDate');
 const clearFilterBtn = document.getElementById('clearFilterBtn');
 const earningsList = document.getElementById('earningsList');
 const messageContainer = document.getElementById('messageContainer');
+
+// Expense Elements
+const expenseForm = document.getElementById('expenseForm');
+const expenseDateInput = document.getElementById('expenseDateInput');
+const expenseAmountInput = document.getElementById('expenseAmountInput');
+const expenseReasonInput = document.getElementById('expenseReasonInput');
+const expenseSaveBtn = document.getElementById('expenseSaveBtn');
+const expenseFilterDate = document.getElementById('expenseFilterDate');
+const expenseClearFilterBtn = document.getElementById('expenseClearFilterBtn');
+const expensesList = document.getElementById('expensesList');
+const expenseMessageContainer = document.getElementById('expenseMessageContainer');
+const expenseAvailableBalance = document.getElementById('expenseAvailableBalance');
+const expenseBalanceWarning = document.getElementById('expenseBalanceWarning');
+const expenseBalanceWarningText = document.getElementById('expenseBalanceWarningText');
+
+// Balance Elements
+const totalEarningsBalance = document.getElementById('totalEarningsBalance');
+const totalExpensesBalance = document.getElementById('totalExpensesBalance');
+const availableBalance = document.getElementById('availableBalance');
+const balanceCard = document.getElementById('balanceCard');
+
+// Statistics Elements
+const totalExpensesStat = document.getElementById('totalExpensesStat');
+const netBalanceStat = document.getElementById('netBalanceStat');
+
+// Audit Elements
 const auditList = document.getElementById('auditList');
 
 // Store the entry ID when editing
@@ -24,6 +50,9 @@ let editingId = null;
 const now = new Date();
 if (dateInput) {
     dateInput.value = now.toISOString().split('T')[0];
+}
+if (expenseDateInput) {
+    expenseDateInput.value = now.toISOString().split('T')[0];
 }
 
 console.log('🚀 App starting...');
@@ -36,28 +65,31 @@ const tabContents = document.querySelectorAll('.tab-content');
 
 tabBtns.forEach(function(btn) {
     btn.addEventListener('click', function() {
-        // Remove active from all tabs
         tabBtns.forEach(function(b) { b.classList.remove('active'); });
         tabContents.forEach(function(c) { c.classList.remove('active'); });
         
-        // Add active to clicked tab
         btn.classList.add('active');
         const tabId = 'tab-' + btn.dataset.tab;
         document.getElementById(tabId).classList.add('active');
         
-        // Load data when switching to history tab
+        // Load data when switching tabs
+        if (btn.dataset.tab === 'expenses') {
+            loadExpenses();
+            loadBalance();
+        }
         if (btn.dataset.tab === 'history') {
             loadAuditHistory();
         }
         if (btn.dataset.tab === 'statistics') {
             loadStatistics();
             loadPeriodSummary();
+            loadBalance();
         }
     });
 });
 
 // ============================================
-// MESSAGE FUNCTION
+// MESSAGE FUNCTIONS
 // ============================================
 function showMessage(message, type = 'success') {
     console.log('📢 Message:', message, type);
@@ -77,17 +109,96 @@ function showMessage(message, type = 'success') {
     }
 }
 
+function showExpenseMessage(message, type = 'success') {
+    console.log('📢 Expense Message:', message, type);
+    if (!expenseMessageContainer) {
+        alert(message);
+        return;
+    }
+    expenseMessageContainer.className = '';
+    expenseMessageContainer.textContent = message;
+    expenseMessageContainer.classList.add(type);
+    expenseMessageContainer.style.display = 'block';
+    
+    if (type === 'success') {
+        setTimeout(function() {
+            expenseMessageContainer.style.display = 'none';
+        }, 5000);
+    }
+}
+
+// ============================================
+// BALANCE FUNCTIONS
+// ============================================
+async function loadBalance() {
+    try {
+        const response = await fetch(API_URL + '/balance');
+        const data = await response.json();
+        
+        console.log('💰 Balance:', data);
+        
+        if (totalEarningsBalance) {
+            totalEarningsBalance.textContent = '£' + data.total_earnings.toFixed(2);
+        }
+        if (totalExpensesBalance) {
+            totalExpensesBalance.textContent = '£' + data.total_expenses.toFixed(2);
+        }
+        if (availableBalance) {
+            availableBalance.textContent = '£' + data.balance.toFixed(2);
+        }
+        if (totalExpensesStat) {
+            totalExpensesStat.textContent = '£' + data.total_expenses.toFixed(2);
+        }
+        if (netBalanceStat) {
+            netBalanceStat.textContent = '£' + data.balance.toFixed(2);
+        }
+        
+        // Update balance card color based on balance
+        if (balanceCard && availableBalance) {
+            balanceCard.classList.remove('low-balance', 'zero-balance');
+            if (data.balance <= 0) {
+                balanceCard.classList.add('zero-balance');
+                availableBalance.textContent = '£0.00';
+                balanceCard.querySelector('.balance-label').textContent = '❌ No Balance Available';
+            } else if (data.balance < 50) {
+                balanceCard.classList.add('low-balance');
+                balanceCard.querySelector('.balance-label').textContent = '⚠️ Low Balance';
+            } else {
+                balanceCard.querySelector('.balance-label').textContent = '✅ Available Balance';
+            }
+        }
+        
+        // Update expense form balance display
+        if (expenseAvailableBalance) {
+            expenseAvailableBalance.textContent = '£' + data.balance.toFixed(2);
+            if (data.balance <= 0) {
+                expenseAvailableBalance.style.color = '#dc3545';
+            } else {
+                expenseAvailableBalance.style.color = '#28a745';
+            }
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('❌ Error loading balance:', error);
+        return null;
+    }
+}
+
 // ============================================
 // EARNINGS FUNCTIONS
 // ============================================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Page loaded!');
     loadEarnings();
+    loadExpenses();
+    loadBalance();
     loadStatistics();
     loadDailySummary();
     loadPeriodSummary();
 });
 
+// Form submit
 if (form) {
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -148,6 +259,7 @@ if (form) {
             if (saveBtn) saveBtn.textContent = '💾 Save Earnings';
             
             loadEarnings();
+            loadBalance();
             loadStatistics();
             loadDailySummary();
             loadPeriodSummary();
@@ -158,6 +270,7 @@ if (form) {
     });
 }
 
+// Delete earnings button
 if (deleteBtn) {
     deleteBtn.addEventListener('click', async function() {
         if (!editingId) {
@@ -193,6 +306,7 @@ if (deleteBtn) {
             if (deleteBtn) deleteBtn.style.display = 'none';
             if (saveBtn) saveBtn.textContent = '💾 Save Earnings';
             loadEarnings();
+            loadBalance();
             loadStatistics();
             loadDailySummary();
             loadPeriodSummary();
@@ -203,6 +317,7 @@ if (deleteBtn) {
     });
 }
 
+// Earnings filter
 if (filterDate) {
     filterDate.addEventListener('change', function() {
         loadEarnings(filterDate.value);
@@ -216,6 +331,7 @@ if (clearFilterBtn) {
     });
 }
 
+// Load earnings
 async function loadEarnings(date) {
     date = date || null;
     console.log('📥 Loading earnings...');
@@ -305,6 +421,7 @@ function displayEarnings(earnings) {
     console.log('✅ Display complete!');
 }
 
+// Edit earning by ID
 window.editEarning = async function(id) {
     console.log('✏️ EDITING - ID:', id);
     
@@ -335,6 +452,7 @@ window.editEarning = async function(id) {
     }
 };
 
+// Delete earning by ID
 window.deleteEarning = async function(id) {
     console.log('🗑️ Deleting ID:', id);
     
@@ -360,12 +478,206 @@ window.deleteEarning = async function(id) {
 
         showMessage('✅ Deleted successfully!', 'success');
         loadEarnings(filterDate ? filterDate.value : null);
+        loadBalance();
         loadStatistics();
         loadDailySummary();
         loadPeriodSummary();
     } catch (error) {
         console.error('❌ Error:', error);
         showMessage('❌ Failed to delete: ' + error.message, 'error');
+    }
+};
+
+// ============================================
+// EXPENSES FUNCTIONS
+// ============================================
+
+// Load expenses
+async function loadExpenses(date) {
+    date = date || null;
+    console.log('📥 Loading expenses...');
+    try {
+        let url = API_URL + '/expenses';
+        if (date) {
+            url = url + '?date=' + date;
+        }
+        
+        const response = await fetch(url);
+        const expenses = await response.json();
+        console.log('📥 Received expenses:', expenses.length, 'entries');
+        displayExpenses(expenses);
+    } catch (error) {
+        console.error('❌ Error loading expenses:', error);
+        if (expensesList) {
+            expensesList.innerHTML = '<p class="error">❌ Failed to load expenses</p>';
+        }
+    }
+}
+
+function displayExpenses(expenses) {
+    console.log('🎨 Displaying expenses...', expenses.length);
+    
+    if (!expensesList) {
+        console.error('❌ expensesList not found!');
+        return;
+    }
+    
+    if (!expenses || expenses.length === 0) {
+        expensesList.innerHTML = '<p class="no-data">📭 No expenses found</p>';
+        return;
+    }
+
+    let html = '';
+    let currentDate = '';
+    let dailyTotal = 0;
+    
+    for (let i = 0; i < expenses.length; i++) {
+        const expense = expenses[i];
+        
+        try {
+            const dateObj = new Date(expense.date);
+            const formattedDate = dateObj.toLocaleDateString('en-GB', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            const dateString = expense.date.split('T')[0];
+            
+            if (currentDate !== dateString) {
+                if (currentDate !== '') {
+                    html += '<div style="background: #e9ecef; padding: 10px; margin: 10px 0; border-radius: 5px; font-weight: bold; text-align: right; color: #dc3545;">Daily Expenses: £' + dailyTotal.toFixed(2) + '</div>';
+                    dailyTotal = 0;
+                }
+                currentDate = dateString;
+                html += '<div style="background: #dc3545; color: white; padding: 10px; border-radius: 5px; margin: 15px 0 10px 0; font-weight: bold; font-size: 1.1rem;">📅 ' + formattedDate + '</div>';
+            }
+            
+            const amountNum = parseFloat(expense.amount) || 0;
+            dailyTotal += amountNum;
+            
+            html += '<div style="background: #f8f9fa; padding: 15px 20px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #dc3545;">';
+            html += '<div>';
+            html += '<div style="font-weight: 600; color: #dc3545; font-size: 0.9rem;">🕐 ' + (expense.time || '00:00:00') + '</div>';
+            html += '<div style="font-size: 1.2rem; font-weight: 700; color: #dc3545;">£' + amountNum.toFixed(2) + '</div>';
+            html += '<div style="color: #333; font-weight: 500;">📝 ' + expense.reason + '</div>';
+            html += '</div>';
+            html += '<div style="display: flex; gap: 8px;">';
+            html += '<button onclick="deleteExpense(' + expense.id + ')" style="background: #dc3545; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">🗑️ Delete</button>';
+            html += '</div>';
+            html += '</div>';
+        } catch (err) {
+            console.error('Error processing expense:', expense, err);
+        }
+    }
+    
+    if (currentDate !== '') {
+        html += '<div style="background: #e9ecef; padding: 10px; margin: 10px 0; border-radius: 5px; font-weight: bold; text-align: right; color: #dc3545;">Daily Expenses: £' + dailyTotal.toFixed(2) + '</div>';
+    }
+    
+    expensesList.innerHTML = html;
+    console.log('✅ Expenses display complete!');
+}
+
+// Expense form submit
+if (expenseForm) {
+    expenseForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        console.log('📤 Expense form submitted!');
+        
+        const date = expenseDateInput ? expenseDateInput.value : null;
+        const amount = expenseAmountInput ? parseFloat(expenseAmountInput.value) : null;
+        const reason = expenseReasonInput ? expenseReasonInput.value.trim() : null;
+
+        if (!date) {
+            showExpenseMessage('❌ Please select a date', 'error');
+            return;
+        }
+        if (!amount || amount <= 0) {
+            showExpenseMessage('❌ Please enter a valid positive amount', 'error');
+            return;
+        }
+        if (!reason) {
+            showExpenseMessage('❌ Please enter a reason for the expense', 'error');
+            return;
+        }
+
+        const data = { 
+            date: date, 
+            amount: amount, 
+            reason: reason 
+        };
+
+        console.log('📤 Sending expense:', data);
+
+        try {
+            const response = await fetch(API_URL + '/expenses', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || errorData.error || 'Server error');
+            }
+
+            const result = await response.json();
+            console.log('✅ Expense saved:', result);
+            
+            showExpenseMessage('✅ Expense added: £' + result.expense.amount + ' - ' + result.expense.reason + '. Remaining: £' + result.remaining_balance.toFixed(2), 'success');
+            
+            expenseAmountInput.value = '';
+            expenseReasonInput.value = '';
+            
+            loadExpenses();
+            loadBalance();
+            loadStatistics();
+            loadPeriodSummary();
+        } catch (error) {
+            console.error('❌ Error:', error);
+            showExpenseMessage('❌ ' + error.message, 'error');
+        }
+    });
+}
+
+// Expense filter
+if (expenseFilterDate) {
+    expenseFilterDate.addEventListener('change', function() {
+        loadExpenses(expenseFilterDate.value);
+    });
+}
+
+if (expenseClearFilterBtn) {
+    expenseClearFilterBtn.addEventListener('click', function() {
+        if (expenseFilterDate) expenseFilterDate.value = '';
+        loadExpenses();
+    });
+}
+
+// Delete expense
+window.deleteExpense = async function(id) {
+    console.log('🗑️ Deleting expense ID:', id);
+    
+    if (!confirm('Delete this expense?')) return;
+
+    try {
+        const response = await fetch(API_URL + '/expenses/' + id, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete expense');
+        }
+
+        showExpenseMessage('✅ Expense deleted successfully!', 'success');
+        loadExpenses(expenseFilterDate ? expenseFilterDate.value : null);
+        loadBalance();
+        loadStatistics();
+        loadPeriodSummary();
+    } catch (error) {
+        console.error('❌ Error:', error);
+        showExpenseMessage('❌ Failed to delete: ' + error.message, 'error');
     }
 };
 
@@ -456,7 +768,6 @@ async function loadAuditHistory() {
         console.log('📜 Audit records:', audits.length);
         displayAudit(audits);
         
-        // Show summary
         const summary = document.getElementById('auditSummary');
         const stats = document.getElementById('auditStats');
         if (summary && stats) {
@@ -465,7 +776,7 @@ async function loadAuditHistory() {
             const creates = audits.filter(a => a.action === 'CREATE').length;
             const updates = audits.filter(a => a.action === 'UPDATE').length;
             const deletes = audits.filter(a => a.action === 'DELETE').length;
-            stats.textContent = `📊 Total: ${total} | ➕ Create: ${creates} | ✏️ Update: ${updates} | 🗑️ Delete: ${deletes}`;
+            stats.textContent = '📊 Total: ' + total + ' | ➕ Create: ' + creates + ' | ✏️ Update: ' + updates + ' | 🗑️ Delete: ' + deletes;
         }
     } catch (error) {
         console.error('❌ Error loading audit:', error);
@@ -514,37 +825,37 @@ function displayAudit(audits) {
             actionLabel = 'DELETE';
         }
         
-        html += `<div style="background: #f8f9fa; padding: 12px 15px; margin: 8px 0; border-radius: 8px; border-left: 4px solid ${audit.action === 'CREATE' ? '#28a745' : audit.action === 'UPDATE' ? '#ffc107' : '#dc3545'};">`;
-        html += `<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">`;
-        html += `<div>`;
-        html += `<span class="audit-badge ${actionClass}">${actionIcon} ${actionLabel}</span>`;
-        html += `<span style="color: #666; margin-left: 10px;">Entry ID: ${audit.entry_id}</span>`;
+        html += '<div style="background: #f8f9fa; padding: 12px 15px; margin: 8px 0; border-radius: 8px; border-left: 4px solid ' + (audit.action === 'CREATE' ? '#28a745' : audit.action === 'UPDATE' ? '#ffc107' : '#dc3545') + ';">';
+        html += '<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">';
+        html += '<div>';
+        html += '<span class="audit-badge ' + actionClass + '">' + actionIcon + ' ' + actionLabel + '</span>';
+        html += '<span style="color: #666; margin-left: 10px;">Entry ID: ' + audit.entry_id + '</span>';
         if (audit.entry_date) {
-            html += `<span style="color: #666; margin-left: 10px;">📅 ${audit.entry_date}</span>`;
+            html += '<span style="color: #666; margin-left: 10px;">📅 ' + audit.entry_date + '</span>';
         }
-        html += `</div>`;
-        html += `<span style="color: #999; font-size: 0.8rem;">${formattedDate}</span>`;
-        html += `</div>`;
+        html += '</div>';
+        html += '<span style="color: #999; font-size: 0.8rem;">' + formattedDate + '</span>';
+        html += '</div>';
         
-        html += `<div style="margin-top: 5px; font-size: 0.9rem; color: #333;">`;
+        html += '<div style="margin-top: 5px; font-size: 0.9rem; color: #333;">';
         if (audit.action === 'CREATE') {
-            html += `<span>💰 Amount: <strong>£${parseFloat(audit.new_amount).toFixed(2)}</strong></span>`;
+            html += '<span>💰 Amount: <strong>£' + parseFloat(audit.new_amount).toFixed(2) + '</strong></span>';
             if (audit.new_description) {
-                html += `<span style="margin-left: 15px;">📝 ${audit.new_description}</span>`;
+                html += '<span style="margin-left: 15px;">📝 ' + audit.new_description + '</span>';
             }
         } else if (audit.action === 'UPDATE') {
-            html += `<span>💰 Old: <strong style="color: #dc3545;">£${parseFloat(audit.old_amount).toFixed(2)}</strong> → New: <strong style="color: #28a745;">£${parseFloat(audit.new_amount).toFixed(2)}</strong></span>`;
+            html += '<span>💰 Old: <strong style="color: #dc3545;">£' + parseFloat(audit.old_amount).toFixed(2) + '</strong> → New: <strong style="color: #28a745;">£' + parseFloat(audit.new_amount).toFixed(2) + '</strong></span>';
             if (audit.old_description || audit.new_description) {
-                html += `<br><span style="color: #666;">📝 Old: ${audit.old_description || 'N/A'} → New: ${audit.new_description || 'N/A'}</span>`;
+                html += '<br><span style="color: #666;">📝 Old: ' + (audit.old_description || 'N/A') + ' → New: ' + (audit.new_description || 'N/A') + '</span>';
             }
         } else if (audit.action === 'DELETE') {
-            html += `<span>💰 Amount: <strong style="color: #dc3545;">£${parseFloat(audit.old_amount).toFixed(2)}</strong> (DELETED)</span>`;
+            html += '<span>💰 Amount: <strong style="color: #dc3545;">£' + parseFloat(audit.old_amount).toFixed(2) + '</strong> (DELETED)</span>';
             if (audit.old_description) {
-                html += `<span style="margin-left: 15px;">📝 ${audit.old_description}</span>`;
+                html += '<span style="margin-left: 15px;">📝 ' + audit.old_description + '</span>';
             }
         }
-        html += `</div>`;
-        html += `</div>`;
+        html += '</div>';
+        html += '</div>';
     });
     
     html += '</div>';
@@ -595,12 +906,10 @@ async function applyAuditFilters() {
         const response = await fetch(url);
         let audits = await response.json();
         
-        // Filter by action
         if (action !== 'all') {
             audits = audits.filter(a => a.action === action);
         }
         
-        // Filter by date
         if (date) {
             audits = audits.filter(function(a) {
                 const auditDate = new Date(a.changed_at).toISOString().split('T')[0];
@@ -610,7 +919,6 @@ async function applyAuditFilters() {
         
         displayAudit(audits);
         
-        // Update summary
         const summary = document.getElementById('auditSummary');
         const stats = document.getElementById('auditStats');
         if (summary && stats) {
@@ -619,11 +927,33 @@ async function applyAuditFilters() {
             const creates = audits.filter(a => a.action === 'CREATE').length;
             const updates = audits.filter(a => a.action === 'UPDATE').length;
             const deletes = audits.filter(a => a.action === 'DELETE').length;
-            stats.textContent = `📊 Total: ${total} | ➕ Create: ${creates} | ✏️ Update: ${updates} | 🗑️ Delete: ${deletes}`;
+            stats.textContent = '📊 Total: ' + total + ' | ➕ Create: ' + creates + ' | ✏️ Update: ' + updates + ' | 🗑️ Delete: ' + deletes;
         }
     } catch (error) {
         console.error('❌ Error filtering audit:', error);
     }
+}
+
+// ============================================
+// CHECK BALANCE BEFORE EXPENSE
+// ============================================
+if (expenseAmountInput) {
+    expenseAmountInput.addEventListener('input', async function() {
+        const amount = parseFloat(this.value) || 0;
+        const balanceData = await loadBalance();
+        if (balanceData && amount > balanceData.balance) {
+            expenseAmountInput.style.borderColor = '#dc3545';
+            if (expenseBalanceWarning && expenseBalanceWarningText) {
+                expenseBalanceWarning.style.display = 'block';
+                expenseBalanceWarningText.textContent = 'You need £' + amount.toFixed(2) + ' but only have £' + balanceData.balance.toFixed(2) + ' available.';
+            }
+        } else {
+            expenseAmountInput.style.borderColor = '#28a745';
+            if (expenseBalanceWarning) {
+                expenseBalanceWarning.style.display = 'none';
+            }
+        }
+    });
 }
 
 // ============================================
@@ -632,10 +962,12 @@ async function applyAuditFilters() {
 setTimeout(function() {
     console.log('🔄 Forcing initial load...');
     loadEarnings();
+    loadExpenses();
+    loadBalance();
     loadStatistics();
     loadDailySummary();
     loadPeriodSummary();
 }, 500);
 
 console.log('🚀 Application loaded successfully!');
-console.log('✅ Tabs with Audit History available');
+console.log('✅ Tabs with Earnings, Expenses, History, and Statistics available');
