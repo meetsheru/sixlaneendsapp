@@ -15,10 +15,7 @@ const filterDate = document.getElementById('filterDate');
 const clearFilterBtn = document.getElementById('clearFilterBtn');
 const earningsList = document.getElementById('earningsList');
 const messageContainer = document.getElementById('messageContainer');
-
-console.log('✅ DOM Elements found:');
-console.log('form:', !!form);
-console.log('earningsList:', !!earningsList);
+const auditList = document.getElementById('auditList');
 
 // Store the entry ID when editing
 let editingId = null;
@@ -31,7 +28,37 @@ if (dateInput) {
 
 console.log('🚀 App starting...');
 
-// Message function
+// ============================================
+// TAB NAVIGATION
+// ============================================
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        // Remove active from all tabs
+        tabBtns.forEach(function(b) { b.classList.remove('active'); });
+        tabContents.forEach(function(c) { c.classList.remove('active'); });
+        
+        // Add active to clicked tab
+        btn.classList.add('active');
+        const tabId = 'tab-' + btn.dataset.tab;
+        document.getElementById(tabId).classList.add('active');
+        
+        // Load data when switching to history tab
+        if (btn.dataset.tab === 'history') {
+            loadAuditHistory();
+        }
+        if (btn.dataset.tab === 'statistics') {
+            loadStatistics();
+            loadPeriodSummary();
+        }
+    });
+});
+
+// ============================================
+// MESSAGE FUNCTION
+// ============================================
 function showMessage(message, type = 'success') {
     console.log('📢 Message:', message, type);
     if (!messageContainer) {
@@ -50,15 +77,17 @@ function showMessage(message, type = 'success') {
     }
 }
 
-// Load data on page load
+// ============================================
+// EARNINGS FUNCTIONS
+// ============================================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Page loaded!');
     loadEarnings();
     loadStatistics();
     loadDailySummary();
+    loadPeriodSummary();
 });
 
-// Form submit
 if (form) {
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -77,12 +106,10 @@ if (form) {
             return;
         }
 
-        // Get current time
         const now = new Date();
         const currentTime = now.toTimeString().slice(0, 8);
         console.log('⏰ Current time:', currentTime);
 
-        // Build the data object
         const data = { 
             date: date, 
             time: currentTime,
@@ -123,6 +150,7 @@ if (form) {
             loadEarnings();
             loadStatistics();
             loadDailySummary();
+            loadPeriodSummary();
         } catch (error) {
             console.error('❌ Error:', error);
             showMessage('❌ Failed to save: ' + error.message, 'error');
@@ -130,7 +158,6 @@ if (form) {
     });
 }
 
-// Delete button
 if (deleteBtn) {
     deleteBtn.addEventListener('click', async function() {
         if (!editingId) {
@@ -168,6 +195,7 @@ if (deleteBtn) {
             loadEarnings();
             loadStatistics();
             loadDailySummary();
+            loadPeriodSummary();
         } catch (error) {
             console.error('❌ Error:', error);
             showMessage('❌ Failed to delete: ' + error.message, 'error');
@@ -175,7 +203,6 @@ if (deleteBtn) {
     });
 }
 
-// Filter
 if (filterDate) {
     filterDate.addEventListener('change', function() {
         loadEarnings(filterDate.value);
@@ -189,7 +216,6 @@ if (clearFilterBtn) {
     });
 }
 
-// Load earnings
 async function loadEarnings(date) {
     date = date || null;
     console.log('📥 Loading earnings...');
@@ -211,7 +237,6 @@ async function loadEarnings(date) {
     }
 }
 
-// Display earnings
 function displayEarnings(earnings) {
     console.log('🎨 Displaying earnings...', earnings.length);
     
@@ -280,7 +305,6 @@ function displayEarnings(earnings) {
     console.log('✅ Display complete!');
 }
 
-// Edit earning by ID
 window.editEarning = async function(id) {
     console.log('✏️ EDITING - ID:', id);
     
@@ -311,7 +335,6 @@ window.editEarning = async function(id) {
     }
 };
 
-// Delete earning by ID
 window.deleteEarning = async function(id) {
     console.log('🗑️ Deleting ID:', id);
     
@@ -339,13 +362,16 @@ window.deleteEarning = async function(id) {
         loadEarnings(filterDate ? filterDate.value : null);
         loadStatistics();
         loadDailySummary();
+        loadPeriodSummary();
     } catch (error) {
         console.error('❌ Error:', error);
         showMessage('❌ Failed to delete: ' + error.message, 'error');
     }
 };
 
-// Load statistics
+// ============================================
+// STATISTICS FUNCTIONS
+// ============================================
 async function loadStatistics() {
     try {
         const response = await fetch(API_URL + '/statistics');
@@ -368,7 +394,6 @@ async function loadStatistics() {
     }
 }
 
-// Load daily summary
 async function loadDailySummary() {
     try {
         const today = new Date().toISOString().split('T')[0];
@@ -390,12 +415,227 @@ async function loadDailySummary() {
     }
 }
 
-// Force load earnings
+async function loadPeriodSummary() {
+    try {
+        const today = new Date();
+        const weekStart = new Date(today);
+        weekStart.setDate(today.getDate() - today.getDay());
+        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        const allEarnings = await fetch(API_URL + '/earnings').then(r => r.json());
+        
+        let weekTotal = 0;
+        let monthTotal = 0;
+        let allTotal = 0;
+        
+        allEarnings.forEach(function(e) {
+            const date = new Date(e.date);
+            const amount = parseFloat(e.amount) || 0;
+            allTotal += amount;
+            
+            if (date >= weekStart) weekTotal += amount;
+            if (date >= monthStart) monthTotal += amount;
+        });
+        
+        document.getElementById('weekTotal').textContent = '£' + weekTotal.toFixed(2);
+        document.getElementById('monthTotal').textContent = '£' + monthTotal.toFixed(2);
+        document.getElementById('allTimeTotal').textContent = '£' + allTotal.toFixed(2);
+    } catch (error) {
+        console.error('❌ Error loading period summary:', error);
+    }
+}
+
+// ============================================
+// AUDIT / HISTORY FUNCTIONS
+// ============================================
+async function loadAuditHistory() {
+    console.log('📜 Loading audit history...');
+    try {
+        const response = await fetch(API_URL + '/audit');
+        const audits = await response.json();
+        console.log('📜 Audit records:', audits.length);
+        displayAudit(audits);
+        
+        // Show summary
+        const summary = document.getElementById('auditSummary');
+        const stats = document.getElementById('auditStats');
+        if (summary && stats) {
+            summary.style.display = 'block';
+            const total = audits.length;
+            const creates = audits.filter(a => a.action === 'CREATE').length;
+            const updates = audits.filter(a => a.action === 'UPDATE').length;
+            const deletes = audits.filter(a => a.action === 'DELETE').length;
+            stats.textContent = `📊 Total: ${total} | ➕ Create: ${creates} | ✏️ Update: ${updates} | 🗑️ Delete: ${deletes}`;
+        }
+    } catch (error) {
+        console.error('❌ Error loading audit:', error);
+        if (auditList) {
+            auditList.innerHTML = '<p class="error">❌ Failed to load audit history</p>';
+        }
+    }
+}
+
+function displayAudit(audits) {
+    console.log('🎨 Displaying audit...', audits.length);
+    
+    if (!auditList) {
+        console.error('❌ auditList not found!');
+        return;
+    }
+    
+    if (!audits || audits.length === 0) {
+        auditList.innerHTML = '<p class="no-data">📭 No audit records found</p>';
+        return;
+    }
+
+    let html = '<div style="font-size: 0.9rem;">';
+    
+    audits.forEach(function(audit) {
+        const date = new Date(audit.changed_at);
+        const formattedDate = date.toLocaleString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        
+        let actionClass = 'audit-badge-create';
+        let actionIcon = '➕';
+        let actionLabel = 'CREATE';
+        if (audit.action === 'UPDATE') {
+            actionClass = 'audit-badge-update';
+            actionIcon = '✏️';
+            actionLabel = 'UPDATE';
+        } else if (audit.action === 'DELETE') {
+            actionClass = 'audit-badge-delete';
+            actionIcon = '🗑️';
+            actionLabel = 'DELETE';
+        }
+        
+        html += `<div style="background: #f8f9fa; padding: 12px 15px; margin: 8px 0; border-radius: 8px; border-left: 4px solid ${audit.action === 'CREATE' ? '#28a745' : audit.action === 'UPDATE' ? '#ffc107' : '#dc3545'};">`;
+        html += `<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">`;
+        html += `<div>`;
+        html += `<span class="audit-badge ${actionClass}">${actionIcon} ${actionLabel}</span>`;
+        html += `<span style="color: #666; margin-left: 10px;">Entry ID: ${audit.entry_id}</span>`;
+        if (audit.entry_date) {
+            html += `<span style="color: #666; margin-left: 10px;">📅 ${audit.entry_date}</span>`;
+        }
+        html += `</div>`;
+        html += `<span style="color: #999; font-size: 0.8rem;">${formattedDate}</span>`;
+        html += `</div>`;
+        
+        html += `<div style="margin-top: 5px; font-size: 0.9rem; color: #333;">`;
+        if (audit.action === 'CREATE') {
+            html += `<span>💰 Amount: <strong>£${parseFloat(audit.new_amount).toFixed(2)}</strong></span>`;
+            if (audit.new_description) {
+                html += `<span style="margin-left: 15px;">📝 ${audit.new_description}</span>`;
+            }
+        } else if (audit.action === 'UPDATE') {
+            html += `<span>💰 Old: <strong style="color: #dc3545;">£${parseFloat(audit.old_amount).toFixed(2)}</strong> → New: <strong style="color: #28a745;">£${parseFloat(audit.new_amount).toFixed(2)}</strong></span>`;
+            if (audit.old_description || audit.new_description) {
+                html += `<br><span style="color: #666;">📝 Old: ${audit.old_description || 'N/A'} → New: ${audit.new_description || 'N/A'}</span>`;
+            }
+        } else if (audit.action === 'DELETE') {
+            html += `<span>💰 Amount: <strong style="color: #dc3545;">£${parseFloat(audit.old_amount).toFixed(2)}</strong> (DELETED)</span>`;
+            if (audit.old_description) {
+                html += `<span style="margin-left: 15px;">📝 ${audit.old_description}</span>`;
+            }
+        }
+        html += `</div>`;
+        html += `</div>`;
+    });
+    
+    html += '</div>';
+    auditList.innerHTML = html;
+    console.log('✅ Audit display complete!');
+}
+
+// Audit filters
+const auditFilterAction = document.getElementById('auditFilterAction');
+const auditFilterDate = document.getElementById('auditFilterDate');
+const refreshAuditBtn = document.getElementById('refreshAuditBtn');
+const clearAuditFilterBtn = document.getElementById('clearAuditFilterBtn');
+
+if (auditFilterAction) {
+    auditFilterAction.addEventListener('change', function() {
+        applyAuditFilters();
+    });
+}
+
+if (auditFilterDate) {
+    auditFilterDate.addEventListener('change', function() {
+        applyAuditFilters();
+    });
+}
+
+if (refreshAuditBtn) {
+    refreshAuditBtn.addEventListener('click', function() {
+        loadAuditHistory();
+    });
+}
+
+if (clearAuditFilterBtn) {
+    clearAuditFilterBtn.addEventListener('click', function() {
+        if (auditFilterAction) auditFilterAction.value = 'all';
+        if (auditFilterDate) auditFilterDate.value = '';
+        applyAuditFilters();
+    });
+}
+
+async function applyAuditFilters() {
+    const action = auditFilterAction ? auditFilterAction.value : 'all';
+    const date = auditFilterDate ? auditFilterDate.value : '';
+    
+    console.log('🔍 Filtering audit:', action, date);
+    
+    try {
+        let url = API_URL + '/audit';
+        const response = await fetch(url);
+        let audits = await response.json();
+        
+        // Filter by action
+        if (action !== 'all') {
+            audits = audits.filter(a => a.action === action);
+        }
+        
+        // Filter by date
+        if (date) {
+            audits = audits.filter(function(a) {
+                const auditDate = new Date(a.changed_at).toISOString().split('T')[0];
+                return auditDate === date;
+            });
+        }
+        
+        displayAudit(audits);
+        
+        // Update summary
+        const summary = document.getElementById('auditSummary');
+        const stats = document.getElementById('auditStats');
+        if (summary && stats) {
+            summary.style.display = 'block';
+            const total = audits.length;
+            const creates = audits.filter(a => a.action === 'CREATE').length;
+            const updates = audits.filter(a => a.action === 'UPDATE').length;
+            const deletes = audits.filter(a => a.action === 'DELETE').length;
+            stats.textContent = `📊 Total: ${total} | ➕ Create: ${creates} | ✏️ Update: ${updates} | 🗑️ Delete: ${deletes}`;
+        }
+    } catch (error) {
+        console.error('❌ Error filtering audit:', error);
+    }
+}
+
+// ============================================
+// FORCE LOAD ON STARTUP
+// ============================================
 setTimeout(function() {
-    console.log('🔄 Forcing load...');
+    console.log('🔄 Forcing initial load...');
     loadEarnings();
+    loadStatistics();
+    loadDailySummary();
+    loadPeriodSummary();
 }, 500);
 
 console.log('🚀 Application loaded successfully!');
-console.log('✅ loadEarnings function exists');
-console.log('✅ displayEarnings function exists');
+console.log('✅ Tabs with Audit History available');
