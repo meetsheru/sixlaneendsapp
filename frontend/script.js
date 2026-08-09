@@ -12,6 +12,9 @@ const clearFilterBtn = document.getElementById('clearFilterBtn');
 const earningsList = document.getElementById('earningsList');
 const messageContainer = document.getElementById('messageContainer');
 
+// Store the entry ID when editing
+let editingId = null;
+
 // Set default date to today
 const now = new Date();
 dateInput.value = now.toISOString().split('T')[0];
@@ -44,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
 form.addEventListener('submit', async function(e) {
     e.preventDefault();
     console.log('📤 Form submitted!');
+    console.log('🔍 editingId:', editingId);
     
     const date = dateInput.value;
     const amount = parseFloat(amountInput.value);
@@ -58,16 +62,19 @@ form.addEventListener('submit', async function(e) {
         return;
     }
 
-    // Get current time from the system
-    const now = new Date();
-    const time = now.toTimeString().slice(0, 8); // HH:MM:SS format
-
+    // Build the data object
     const data = { 
         date: date, 
-        time: time, 
         amount: amount, 
         description: description 
     };
+    
+    // If editing, add the ID
+    if (editingId) {
+        data.id = editingId;
+    }
+
+    console.log('📤 FINAL DATA SENDING:', JSON.stringify(data, null, 2));
 
     try {
         const response = await fetch(API_URL + '/earnings', {
@@ -82,7 +89,16 @@ form.addEventListener('submit', async function(e) {
         }
 
         const result = await response.json();
-        showMessage('✅ Saved successfully for ' + result.date + ' at ' + result.time + '!', 'success');
+        console.log('✅ Server response:', result);
+        
+        if (editingId) {
+            showMessage('✅ Updated: £' + result.amount + ' for ' + result.date + ' at ' + result.time, 'success');
+        } else {
+            showMessage('✅ Saved: £' + result.amount + ' for ' + result.date + ' at ' + result.time, 'success');
+        }
+        
+        // Reset editing state
+        editingId = null;
         
         amountInput.value = '';
         descriptionInput.value = '';
@@ -98,54 +114,38 @@ form.addEventListener('submit', async function(e) {
     }
 });
 
-// Delete button
+// Delete button (for the current entry being edited)
 deleteBtn.addEventListener('click', async function() {
-    const date = dateInput.value;
-    if (!date) return;
+    if (!editingId) {
+        showMessage('❌ No entry selected to delete', 'error');
+        return;
+    }
     
-    // Get all earnings for that date to find which one to delete
+    if (!confirm('Delete this entry?')) return;
+
     try {
-        const response = await fetch(API_URL + '/earnings/' + date);
-        const earnings = await response.json();
+        // Get the entry first to get date and time
+        const getResp = await fetch(API_URL + '/earnings');
+        const allEarnings = await getResp.json();
+        const entry = allEarnings.find(e => e.id === editingId);
         
-        if (earnings.length === 0) {
-            showMessage('❌ No earnings found for this date', 'error');
+        if (!entry) {
+            showMessage('❌ Entry not found', 'error');
             return;
         }
         
-        // If multiple entries, let user choose which one
-        let timeToDelete = null;
-        if (earnings.length === 1) {
-            timeToDelete = earnings[0].time;
-        } else {
-            // Show list of entries and let user pick
-            let message = 'Multiple entries found for ' + date + ':\n';
-            earnings.forEach(function(e, index) {
-                message += (index + 1) + '. £' + e.amount + ' at ' + e.time + (e.description ? ' - ' + e.description : '') + '\n';
-            });
-            message += '\nEnter the number to delete (1-' + earnings.length + '):';
-            const choice = prompt(message);
-            if (!choice) return;
-            const index = parseInt(choice) - 1;
-            if (index >= 0 && index < earnings.length) {
-                timeToDelete = earnings[index].time;
-            } else {
-                showMessage('❌ Invalid selection', 'error');
-                return;
-            }
-        }
-        
-        if (!confirm('Delete entry for ' + date + ' at ' + timeToDelete + '?')) return;
-
-        const deleteResponse = await fetch(API_URL + '/earnings/' + date + '/' + timeToDelete, {
+        const response = await fetch(API_URL + '/earnings/' + entry.date.split('T')[0] + '/' + entry.time, {
             method: 'DELETE'
         });
 
-        if (!deleteResponse.ok) {
+        if (!response.ok) {
             throw new Error('Failed to delete');
         }
 
-        showMessage('✅ Deleted for ' + date + ' at ' + timeToDelete + '!', 'success');
+        showMessage('✅ Deleted successfully!', 'success');
+        
+        editingId = null;
+        
         form.reset();
         dateInput.value = new Date().toISOString().split('T')[0];
         deleteBtn.style.display = 'none';
@@ -232,8 +232,8 @@ function displayEarnings(earnings) {
         }
         html += '</div>';
         html += '<div style="display: flex; gap: 8px;">';
-        html += '<button onclick="editEarning(\'' + dateString + '\',\'' + earning.time + '\')" style="background: #ffc107; color: #333; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">✏️ Edit</button>';
-        html += '<button onclick="deleteEarning(\'' + dateString + '\',\'' + earning.time + '\')" style="background: #dc3545; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">🗑️ Delete</button>';
+        html += '<button onclick="editEarning(' + earning.id + ')" style="background: #ffc107; color: #333; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">✏️ Edit</button>';
+        html += '<button onclick="deleteEarning(' + earning.id + ')" style="background: #dc3545; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">🗑️ Delete</button>';
         html += '</div>';
         html += '</div>';
     });
@@ -246,32 +246,34 @@ function displayEarnings(earnings) {
     console.log('✅ Display complete!');
 }
 
-// Edit earning
-window.editEarning = async function(date, time) {
-    console.log('✏️ Editing:', date, time);
+// Edit earning by ID
+window.editEarning = async function(id) {
+    console.log('✏️ EDITING - ID:', id);
+    
     try {
-        const response = await fetch(API_URL + '/earnings/' + date);
+        // Get all earnings to find the one with this ID
+        const response = await fetch(API_URL + '/earnings');
         const earnings = await response.json();
-        let earning = null;
-        for (let i = 0; i < earnings.length; i++) {
-            if (earnings[i].time === time) {
-                earning = earnings[i];
-                break;
-            }
-        }
+        
+        const earning = earnings.find(e => e.id === id);
         
         if (!earning) {
             showMessage('❌ Earning not found', 'error');
             return;
         }
         
-        dateInput.value = date;
+        console.log('✅ Found earning:', earning);
+        
+        // Store the ID for update
+        editingId = id;
+        
+        dateInput.value = earning.date.split('T')[0];
         amountInput.value = earning.amount;
         descriptionInput.value = earning.description || '';
         deleteBtn.style.display = 'inline-block';
         saveBtn.textContent = '🔄 Update Earnings';
         
-        showMessage('📝 Editing earnings for ' + date + ' at ' + time, 'info');
+        showMessage('📝 Editing: £' + earning.amount + ' from ' + earning.time, 'info');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
         console.error('❌ Error:', error);
@@ -279,13 +281,24 @@ window.editEarning = async function(date, time) {
     }
 };
 
-// Delete earning
-window.deleteEarning = async function(date, time) {
-    console.log('🗑️ Deleting:', date, time);
-    if (!confirm('Delete entry for ' + date + ' at ' + time + '?')) return;
+// Delete earning by ID
+window.deleteEarning = async function(id) {
+    console.log('🗑️ Deleting ID:', id);
+    
+    if (!confirm('Delete this entry?')) return;
 
     try {
-        const response = await fetch(API_URL + '/earnings/' + date + '/' + time, {
+        // Get the entry first to get date and time
+        const getResp = await fetch(API_URL + '/earnings');
+        const allEarnings = await getResp.json();
+        const entry = allEarnings.find(e => e.id === id);
+        
+        if (!entry) {
+            showMessage('❌ Entry not found', 'error');
+            return;
+        }
+        
+        const response = await fetch(API_URL + '/earnings/' + entry.date.split('T')[0] + '/' + entry.time, {
             method: 'DELETE'
         });
 
@@ -293,7 +306,7 @@ window.deleteEarning = async function(date, time) {
             throw new Error('Failed to delete');
         }
 
-        showMessage('✅ Deleted for ' + date + ' at ' + time + '!', 'success');
+        showMessage('✅ Deleted successfully!', 'success');
         loadEarnings(filterDate.value);
         loadStatistics();
         loadDailySummary();
@@ -340,54 +353,5 @@ async function loadDailySummary() {
     }
 }
 
-// Check if date has existing entry
-dateInput.addEventListener('change', async function() {
-    const date = this.value;
-    if (!date) return;
-
-    try {
-        const response = await fetch(API_URL + '/earnings/' + date);
-        if (response.status === 404) {
-            amountInput.value = '';
-            descriptionInput.value = '';
-            deleteBtn.style.display = 'none';
-            saveBtn.textContent = '💾 Save Earnings';
-            showMessage('📅 No earnings found for ' + date, 'info');
-            return;
-        }
-
-        const earnings = await response.json();
-        if (earnings.length > 0) {
-            // Show the first entry (or let user choose which one to edit)
-            if (earnings.length === 1) {
-                amountInput.value = earnings[0].amount;
-                descriptionInput.value = earnings[0].description || '';
-                deleteBtn.style.display = 'inline-block';
-                saveBtn.textContent = '🔄 Update Earnings';
-                showMessage('📊 Found earnings of £' + earnings[0].amount + ' for ' + date + ' at ' + earnings[0].time, 'info');
-            } else {
-                // Multiple entries, show them
-                let message = 'Multiple entries found for ' + date + ':\n';
-                earnings.forEach(function(e, index) {
-                    message += (index + 1) + '. £' + e.amount + ' at ' + e.time + (e.description ? ' - ' + e.description : '') + '\n';
-                });
-                message += '\nEnter the number to edit (1-' + earnings.length + '):';
-                const choice = prompt(message);
-                if (!choice) return;
-                const index = parseInt(choice) - 1;
-                if (index >= 0 && index < earnings.length) {
-                    const selected = earnings[index];
-                    amountInput.value = selected.amount;
-                    descriptionInput.value = selected.description || '';
-                    deleteBtn.style.display = 'inline-block';
-                    saveBtn.textContent = '🔄 Update Earnings';
-                    showMessage('📊 Editing entry from ' + selected.time + ': £' + selected.amount, 'info');
-                }
-            }
-        }
-    } catch (error) {
-        console.error('❌ Error checking earnings:', error);
-    }
-});
-
 console.log('🚀 Application loaded successfully!');
+console.log('✅ Using ID-based updates');
