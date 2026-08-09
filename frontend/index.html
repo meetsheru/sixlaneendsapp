@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Takeaway Earnings Tracker</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>📊 Takeaway Earnings Tracker</h1>
+        <p class="subtitle">Track your daily earnings</p>
+      </header>
+
+      <main>
+        <!-- Add/Update Earning Form -->
+        <section class="form-section">
+          <h2>Add / Update Earnings</h2>
+          <form id="earningForm">
+            <div class="form-group">
+              <label for="dateInput">Date</label>
+              <input type="date" id="dateInput" required />
+            </div>
+            <div class="form-group">
+              <label for="amountInput">Earnings (£)</label>
+              <input
+                type="number"
+                id="amountInput"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="descriptionInput">Description (Optional)</label>
+              <input
+                type="text"
+                id="descriptionInput"
+                placeholder="e.g., Lunch sales"
+              />
+            </div>
+            
+            <div class="form-actions">
+              <button type="submit" id="saveBtn">💾 Save Earnings</button>
+              <button type="button" id="deleteBtn" class="delete-btn">
+                🗑️ Delete Entry
+              </button>
+            </div>
+            
+            <div id="messageContainer"></div>
+          </form>
+        </section>
+
+        <!-- Daily Summary -->
+        <section class="stats-section">
+          <h2>📊 Daily Summary</h2>
+          <div class="daily-summary">
+            <div class="summary-card">
+              <div class="summary-label">Today's Total</div>
+              <div class="summary-value" id="todayTotal">£0.00</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-label">Total Entries Today</div>
+              <div class="summary-value" id="todayEntries">0</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Statistics Section -->
+        <section class="stats-section">
+          <h2>📈 Overall Statistics</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Total Entries</div>
+              <div class="stat-value" id="totalEntries">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Total Earnings</div>
+              <div class="stat-value" id="totalEarnings">£0.00</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Average Daily</div>
+              <div class="stat-value" id="averageEarning">£0.00</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Min / Max</div>
+              <div class="stat-value" id="minMaxEarning">£0.00 / £0.00</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Recent Earnings List -->
+        <section class="list-section">
+          <h2>📋 Recent Earnings</h2>
+          <div class="filter-section">
+            <label for="filterDate">Filter by Date:</label>
+            <input type="date" id="filterDate" />
+            <button id="clearFilterBtn">Clear Filter</button>
+          </div>
+          <div id="earningsList">
+            <p class="loading">Loading earnings...</p>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>&copy; 2024 Takeaway Earnings Tracker</p>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: takeaway-postgres
+    environment:
+      POSTGRES_USER: takeaway_user
+      POSTGRES_PASSWORD: takeaway_password
+      POSTGRES_DB: takeaway_db
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - takeaway-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U takeaway_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    build: ./backend
+    container_name: takeaway-backend
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: postgres
+      DB_USER: takeaway_user
+      DB_PASSWORD: takeaway_password
+      DB_NAME: takeaway_db
+      DB_PORT: 5432
+      PORT: 3000
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - takeaway-network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: takeaway-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - takeaway-network
+    restart: unless-stopped
+
+networks:
+  takeaway-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
