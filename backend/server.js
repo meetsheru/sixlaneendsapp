@@ -50,10 +50,10 @@ app.get('/api/earnings', async (req, res) => {
         let params = [];
 
         if (date) {
-            query += ' WHERE date = $1 ORDER BY date DESC, time ASC';
+            query += ' WHERE date = $1 ORDER BY time DESC';
             params.push(date);
         } else {
-            query += ' ORDER BY date DESC, time ASC';
+            query += ' ORDER BY date DESC, time DESC';
         }
 
         const result = await pool.query(query, params);
@@ -68,7 +68,7 @@ app.get('/api/earnings/:date', async (req, res) => {
     try {
         const { date } = req.params;
         const result = await pool.query(
-            'SELECT * FROM earnings WHERE date = $1 ORDER BY time ASC',
+            'SELECT * FROM earnings WHERE date = $1 ORDER BY time DESC',
             [date]
         );
         
@@ -92,6 +92,11 @@ app.post('/api/earnings', async (req, res) => {
         
         let { id, date, time, amount, description } = req.body;
         
+        // Handle description - if empty string, set to null
+        if (description === '') {
+            description = null;
+        }
+        
         // IMPORTANT: Convert id to integer if provided
         if (id) {
             id = parseInt(id);
@@ -114,10 +119,10 @@ app.post('/api/earnings', async (req, res) => {
             
             console.log('✅ Found existing entry:', checkExists.rows[0]);
             
-            // UPDATE the entry
+            // UPDATE the entry - include time update
             const result = await pool.query(
-                'UPDATE earnings SET amount = $1, description = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3 RETURNING *',
-                [amount, description || null, id]
+                'UPDATE earnings SET amount = $1, description = $2, time = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $4 RETURNING *',
+                [amount, description, time, id]
             );
             
             console.log('✅ UPDATE by ID successful!');
@@ -145,39 +150,20 @@ app.post('/api/earnings', async (req, res) => {
             return res.status(400).json({ error: 'Amount must be a positive number' });
         }
 
-        // Check if entry exists for this date and time
-        console.log('🔍 Checking if entry exists for:', date, time);
-        const existing = await pool.query(
-            'SELECT * FROM earnings WHERE date = $1 AND time = $2',
-            [date, time]
+        // INSERT new entry
+        console.log('➕ INSERTING new entry for:', date, time);
+        const result = await pool.query(
+            'INSERT INTO earnings (date, time, amount, description) VALUES ($1, $2, $3, $4) RETURNING *',
+            [date, time, amount, description]
         );
-
-        console.log('📊 Existing rows found:', existing.rows.length);
-
-        let result;
-        if (existing.rows.length > 0) {
-            // UPDATE existing entry by date/time
-            console.log('🔄 UPDATING existing entry for:', date, time);
-            result = await pool.query(
-                'UPDATE earnings SET amount = $1, description = $2, updated_at = CURRENT_TIMESTAMP WHERE date = $3 AND time = $4 RETURNING *',
-                [amount, description || null, date, time]
-            );
-            console.log('✅ UPDATE successful!');
-        } else {
-            // INSERT new entry
-            console.log('➕ INSERTING new entry for:', date, time);
-            result = await pool.query(
-                'INSERT INTO earnings (date, time, amount, description) VALUES ($1, $2, $3, $4) RETURNING *',
-                [date, time, amount, description || null]
-            );
-            console.log('✅ INSERT successful!');
-        }
+        console.log('✅ INSERT successful!');
 
         console.log('📊 Result:', JSON.stringify(result.rows[0], null, 2));
         console.log('📥 ========================================');
         res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error('❌ Error adding earning:', error);
+        console.error('❌ Error details:', error.stack);
         res.status(500).json({ error: 'Internal server error', details: error.message });
     }
 });
