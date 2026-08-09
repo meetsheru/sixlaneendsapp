@@ -10,95 +10,160 @@
     <div class="container">
       <header>
         <h1>📊 Takeaway Earnings Tracker</h1>
-        <p class="subtitle">Track your daily earnings</p>
+        <p class="subtitle">Track your daily earnings with audit history</p>
       </header>
 
+      <!-- Tab Navigation -->
+      <div class="tab-navigation">
+        <button class="tab-btn active" data-tab="earnings">💰 Earnings</button>
+        <button class="tab-btn" data-tab="history">📜 History</button>
+        <button class="tab-btn" data-tab="statistics">📊 Statistics</button>
+      </div>
+
       <main>
-        <section class="form-section">
-          <h2>Add / Update Earnings</h2>
-          <form id="earningForm">
-            <div class="form-group">
-              <label for="dateInput">Date</label>
-              <input type="date" id="dateInput" required />
-            </div>
-            <div class="form-group">
-              <label for="amountInput">Earnings (£)</label>
-              <input
-                type="number"
-                id="amountInput"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label for="descriptionInput">Description (Optional)</label>
-              <input
-                type="text"
-                id="descriptionInput"
-                placeholder="e.g., Lunch sales"
-              />
-            </div>
-            
-            <div class="form-actions">
-              <button type="submit" id="saveBtn">💾 Save Earnings</button>
-              <button type="button" id="deleteBtn" class="delete-btn">
-                🗑️ Delete Entry
-              </button>
-            </div>
-            
-            <div id="messageContainer"></div>
-          </form>
-        </section>
+        <!-- TAB 1: Earnings -->
+        <div id="tab-earnings" class="tab-content active">
+          <!-- Add/Update Earning Form -->
+          <section class="form-section">
+            <h2>Add / Update Earnings</h2>
+            <form id="earningForm">
+              <div class="form-group">
+                <label for="dateInput">Date</label>
+                <input type="date" id="dateInput" required />
+              </div>
+              <div class="form-group">
+                <label for="amountInput">Earnings (£)</label>
+                <input
+                  type="number"
+                  id="amountInput"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="descriptionInput">Description (Optional)</label>
+                <input
+                  type="text"
+                  id="descriptionInput"
+                  placeholder="e.g., Lunch sales"
+                />
+              </div>
+              
+              <div class="form-actions">
+                <button type="submit" id="saveBtn">💾 Save Earnings</button>
+                <button type="button" id="deleteBtn" class="delete-btn">
+                  🗑️ Delete Entry
+                </button>
+              </div>
+              
+              <div id="messageContainer"></div>
+            </form>
+          </section>
 
-        <section class="stats-section">
-          <h2>📊 Daily Summary</h2>
-          <div class="daily-summary">
-            <div class="summary-card">
-              <div class="summary-label">Today's Total</div>
-              <div class="summary-value" id="todayTotal">£0.00</div>
+          <!-- Daily Summary -->
+          <section class="stats-section">
+            <h2>📊 Daily Summary</h2>
+            <div class="daily-summary">
+              <div class="summary-card">
+                <div class="summary-label">Today's Total</div>
+                <div class="summary-value" id="todayTotal">£0.00</div>
+              </div>
+              <div class="summary-card">
+                <div class="summary-label">Total Entries Today</div>
+                <div class="summary-value" id="todayEntries">0</div>
+              </div>
             </div>
-            <div class="summary-card">
-              <div class="summary-label">Total Entries Today</div>
-              <div class="summary-value" id="todayEntries">0</div>
-            </div>
-          </div>
-        </section>
+          </section>
 
-        <section class="stats-section">
-          <h2>📈 Overall Statistics</h2>
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-label">Total Entries</div>
-              <div class="stat-value" id="totalEntries">0</div>
+          <!-- Recent Earnings List -->
+          <section class="list-section">
+            <h2>📋 Recent Earnings</h2>
+            <div class="filter-section">
+              <label for="filterDate">Filter by Date:</label>
+              <input type="date" id="filterDate" />
+              <button id="clearFilterBtn">Clear Filter</button>
             </div>
-            <div class="stat-card">
-              <div class="stat-label">Total Earnings</div>
-              <div class="stat-value" id="totalEarnings">£0.00</div>
+            <div id="earningsList">
+              <p class="loading">Loading earnings...</p>
             </div>
-            <div class="stat-card">
-              <div class="stat-label">Average Daily</div>
-              <div class="stat-value" id="averageEarning">£0.00</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Min / Max</div>
-              <div class="stat-value" id="minMaxEarning">£0.00 / £0.00</div>
-            </div>
-          </div>
-        </section>
+          </section>
+        </div>
 
-        <section class="list-section">
-          <h2>📋 Recent Earnings</h2>
-          <div class="filter-section">
-            <label for="filterDate">Filter by Date:</label>
-            <input type="date" id="filterDate" />
-            <button id="clearFilterBtn">Clear Filter</button>
-          </div>
-          <div id="earningsList">
-            <p class="loading">Loading earnings...</p>
-          </div>
-        </section>
+        <!-- TAB 2: History / Audit -->
+        <div id="tab-history" class="tab-content">
+          <section class="history-section">
+            <h2>📜 Audit History</h2>
+            <div class="history-controls">
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button id="refreshAuditBtn" style="background: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">🔄 Refresh</button>
+                <button id="clearAuditFilterBtn" style="background: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">Clear Filter</button>
+              </div>
+              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <label for="auditFilterAction">Filter by Action:</label>
+                <select id="auditFilterAction" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd;">
+                  <option value="all">All Actions</option>
+                  <option value="CREATE">➕ Create</option>
+                  <option value="UPDATE">✏️ Update</option>
+                  <option value="DELETE">🗑️ Delete</option>
+                </select>
+                <label for="auditFilterDate" style="margin-left: 10px;">Date:</label>
+                <input type="date" id="auditFilterDate" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd;" />
+              </div>
+            </div>
+            <div id="auditSummary" style="margin: 10px 0; padding: 10px; background: #e9ecef; border-radius: 8px; display: none;">
+              <span id="auditStats"></span>
+            </div>
+            <div id="auditList">
+              <p class="loading">Loading audit history...</p>
+            </div>
+          </section>
+        </div>
+
+        <!-- TAB 3: Statistics -->
+        <div id="tab-statistics" class="tab-content">
+          <section class="stats-section">
+            <h2>📈 Overall Statistics</h2>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-label">Total Entries</div>
+                <div class="stat-value" id="totalEntries">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Total Earnings</div>
+                <div class="stat-value" id="totalEarnings">£0.00</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Average Daily</div>
+                <div class="stat-value" id="averageEarning">£0.00</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Min / Max</div>
+                <div class="stat-value" id="minMaxEarning">£0.00 / £0.00</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Weekly/Monthly Summary -->
+          <section class="stats-section">
+            <h2>📅 Period Summary</h2>
+            <div class="period-summary">
+              <div class="period-card">
+                <div class="period-label">This Week</div>
+                <div class="period-value" id="weekTotal">£0.00</div>
+              </div>
+              <div class="period-card">
+                <div class="period-label">This Month</div>
+                <div class="period-value" id="monthTotal">£0.00</div>
+              </div>
+              <div class="period-card">
+                <div class="period-label">All Time</div>
+                <div class="period-value" id="allTimeTotal">£0.00</div>
+              </div>
+            </div>
+          </section>
+        </div>
       </main>
 
       <footer>

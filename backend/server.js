@@ -43,6 +43,10 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// ============================================
+// EARNINGS API ENDPOINTS
+// ============================================
+
 app.get('/api/earnings', async (req, res) => {
     try {
         const { date } = req.query;
@@ -83,87 +87,66 @@ app.get('/api/earnings/:date', async (req, res) => {
     }
 });
 
-// POST - Handle both CREATE and UPDATE
 app.post('/api/earnings', async (req, res) => {
     try {
-        console.log('📥 ========================================');
-        console.log('📥 POST /api/earnings');
-        console.log('📥 Received data:', JSON.stringify(req.body, null, 2));
+        console.log('📥 Received:', req.body);
         
         let { id, date, time, amount, description } = req.body;
         
-        // Handle description - if empty string, set to null
         if (description === '') {
             description = null;
         }
         
-        // IMPORTANT: Convert id to integer if provided
         if (id) {
             id = parseInt(id);
-            console.log('🔄 ID provided - UPDATING by ID:', id);
+            console.log('🔄 UPDATING by ID:', id);
             
             if (amount === undefined || amount === null) {
                 return res.status(400).json({ error: 'Amount is required' });
             }
             
-            // First check if the entry exists
             const checkExists = await pool.query(
                 'SELECT * FROM earnings WHERE id = $1',
                 [id]
             );
             
             if (checkExists.rows.length === 0) {
-                console.log('❌ No entry found with ID:', id);
                 return res.status(404).json({ error: 'Earning not found' });
             }
             
-            console.log('✅ Found existing entry:', checkExists.rows[0]);
-            
-            // UPDATE the entry - include time update
             const result = await pool.query(
                 'UPDATE earnings SET amount = $1, description = $2, time = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $4 RETURNING *',
                 [amount, description, time, id]
             );
             
-            console.log('✅ UPDATE by ID successful!');
-            console.log('📊 Updated row:', JSON.stringify(result.rows[0], null, 2));
-            console.log('📥 ========================================');
+            console.log('✅ UPDATE successful!');
             return res.json(result.rows[0]);
         }
         
-        // No ID - CREATE new entry
-        console.log('➕ No ID provided - CREATING new entry');
+        console.log('➕ CREATING new entry');
         
         if (!time) {
             const now = new Date();
             time = now.toTimeString().slice(0, 8);
-            console.log('⏰ Time not provided, using server time:', time);
         }
         
         if (!date || amount === undefined || amount === null) {
-            console.log('❌ Missing date or amount');
             return res.status(400).json({ error: 'Date and amount are required' });
         }
 
         if (isNaN(amount) || amount < 0) {
-            console.log('❌ Invalid amount:', amount);
             return res.status(400).json({ error: 'Amount must be a positive number' });
         }
 
-        // INSERT new entry
-        console.log('➕ INSERTING new entry for:', date, time);
         const result = await pool.query(
             'INSERT INTO earnings (date, time, amount, description) VALUES ($1, $2, $3, $4) RETURNING *',
             [date, time, amount, description]
         );
         console.log('✅ INSERT successful!');
 
-        console.log('📊 Result:', JSON.stringify(result.rows[0], null, 2));
-        console.log('📥 ========================================');
         res.status(201).json(result.rows[0]);
     } catch (error) {
-        console.error('❌ Error adding earning:', error);
-        console.error('❌ Error details:', error.stack);
+        console.error('❌ Error:', error);
         res.status(500).json({ error: 'Internal server error', details: error.message });
     }
 });
@@ -214,6 +197,63 @@ app.get('/api/statistics', async (req, res) => {
     } catch (error) {
         console.error('❌ Error fetching statistics:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// ============================================
+// AUDIT / HISTORY API ENDPOINTS
+// ============================================
+
+// Get all audit history (with optional limit)
+app.get('/api/audit', async (req, res) => {
+    try {
+        const { limit = 100 } = req.query;
+        const result = await pool.query(
+            `SELECT a.*, e.date as entry_date 
+             FROM earnings_audit a 
+             LEFT JOIN earnings e ON a.entry_id = e.id 
+             ORDER BY a.changed_at DESC 
+             LIMIT $1`,
+            [limit]
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error('❌ Error fetching audit:', error);
+        res.status(500).json({ error: 'Failed to fetch audit history' });
+    }
+});
+
+// Get audit history for a specific entry
+app.get('/api/audit/:entryId', async (req, res) => {
+    try {
+        const { entryId } = req.params;
+        const result = await pool.query(
+            `SELECT a.*, e.date as entry_date 
+             FROM earnings_audit a 
+             LEFT JOIN earnings e ON a.entry_id = e.id 
+             WHERE a.entry_id = $1 
+             ORDER BY a.changed_at DESC`,
+            [entryId]
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error('❌ Error fetching audit for entry:', error);
+        res.status(500).json({ error: 'Failed to fetch audit history for entry' });
+    }
+});
+
+// Get audit summary (counts by action)
+app.get('/api/audit/summary', async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT action, COUNT(*) as count 
+             FROM earnings_audit 
+             GROUP BY action`
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error('❌ Error fetching audit summary:', error);
+        res.status(500).json({ error: 'Failed to fetch audit summary' });
     }
 });
 
