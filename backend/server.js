@@ -50,10 +50,10 @@ app.get('/api/earnings', async (req, res) => {
         let params = [];
 
         if (date) {
-            query += ' WHERE date = $1 ORDER BY date DESC, time ASC';
+            query += ' WHERE date = $1 ORDER BY time DESC';
             params.push(date);
         } else {
-            query += ' ORDER BY date DESC, time ASC';
+            query += ' ORDER BY date DESC, time DESC';
         }
 
         const result = await pool.query(query, params);
@@ -68,7 +68,7 @@ app.get('/api/earnings/:date', async (req, res) => {
     try {
         const { date } = req.params;
         const result = await pool.query(
-            'SELECT * FROM earnings WHERE date = $1 ORDER BY time ASC',
+            'SELECT * FROM earnings WHERE date = $1 ORDER BY time DESC',
             [date]
         );
         
@@ -83,50 +83,87 @@ app.get('/api/earnings/:date', async (req, res) => {
     }
 });
 
+// POST - Handle both CREATE and UPDATE
 app.post('/api/earnings', async (req, res) => {
     try {
-        console.log('📥 Received:', req.body);
+        console.log('📥 ========================================');
+        console.log('📥 POST /api/earnings');
+        console.log('📥 Received data:', JSON.stringify(req.body, null, 2));
         
-        let { date, time, amount, description } = req.body;
+        let { id, date, time, amount, description } = req.body;
         
-        // If time is not provided, use server time
+        // Handle description - if empty string, set to null
+        if (description === '') {
+            description = null;
+        }
+        
+        // IMPORTANT: Convert id to integer if provided
+        if (id) {
+            id = parseInt(id);
+            console.log('🔄 ID provided - UPDATING by ID:', id);
+            
+            if (amount === undefined || amount === null) {
+                return res.status(400).json({ error: 'Amount is required' });
+            }
+            
+            // First check if the entry exists
+            const checkExists = await pool.query(
+                'SELECT * FROM earnings WHERE id = $1',
+                [id]
+            );
+            
+            if (checkExists.rows.length === 0) {
+                console.log('❌ No entry found with ID:', id);
+                return res.status(404).json({ error: 'Earning not found' });
+            }
+            
+            console.log('✅ Found existing entry:', checkExists.rows[0]);
+            
+            // UPDATE the entry - include time update
+            const result = await pool.query(
+                'UPDATE earnings SET amount = $1, description = $2, time = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $4 RETURNING *',
+                [amount, description, time, id]
+            );
+            
+            console.log('✅ UPDATE by ID successful!');
+            console.log('📊 Updated row:', JSON.stringify(result.rows[0], null, 2));
+            console.log('📥 ========================================');
+            return res.json(result.rows[0]);
+        }
+        
+        // No ID - CREATE new entry
+        console.log('➕ No ID provided - CREATING new entry');
+        
         if (!time) {
             const now = new Date();
-            time = now.toTimeString().slice(0, 8); // HH:MM:SS format
+            time = now.toTimeString().slice(0, 8);
+            console.log('⏰ Time not provided, using server time:', time);
         }
         
         if (!date || amount === undefined || amount === null) {
+            console.log('❌ Missing date or amount');
             return res.status(400).json({ error: 'Date and amount are required' });
         }
 
         if (isNaN(amount) || amount < 0) {
+            console.log('❌ Invalid amount:', amount);
             return res.status(400).json({ error: 'Amount must be a positive number' });
         }
 
-        const existing = await pool.query(
-            'SELECT * FROM earnings WHERE date = $1 AND time = $2',
-            [date, time]
+        // INSERT new entry
+        console.log('➕ INSERTING new entry for:', date, time);
+        const result = await pool.query(
+            'INSERT INTO earnings (date, time, amount, description) VALUES ($1, $2, $3, $4) RETURNING *',
+            [date, time, amount, description]
         );
+        console.log('✅ INSERT successful!');
 
-        let result;
-        if (existing.rows.length > 0) {
-            const newAmount = parseFloat(existing.rows[0].amount) + parseFloat(amount);
-            result = await pool.query(
-                'UPDATE earnings SET amount = $1, description = $2, updated_at = CURRENT_TIMESTAMP WHERE date = $3 AND time = $4 RETURNING *',
-                [newAmount, description || null, date, time]
-            );
-            console.log('✅ Updated:', date, time);
-        } else {
-            result = await pool.query(
-                'INSERT INTO earnings (date, time, amount, description) VALUES ($1, $2, $3, $4) RETURNING *',
-                [date, time, amount, description || null]
-            );
-            console.log('✅ Added:', date, time);
-        }
-
+        console.log('📊 Result:', JSON.stringify(result.rows[0], null, 2));
+        console.log('📥 ========================================');
         res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error('❌ Error adding earning:', error);
+        console.error('❌ Error details:', error.stack);
         res.status(500).json({ error: 'Internal server error', details: error.message });
     }
 });
@@ -134,6 +171,8 @@ app.post('/api/earnings', async (req, res) => {
 app.delete('/api/earnings/:date/:time', async (req, res) => {
     try {
         const { date, time } = req.params;
+        console.log('🗑️ Deleting:', date, time);
+        
         const result = await pool.query(
             'DELETE FROM earnings WHERE date = $1 AND time = $2 RETURNING *',
             [date, time]
