@@ -50,28 +50,15 @@
               </div>
               <div class="form-group">
                 <label for="amountInput">Earnings (£)</label>
-                <input
-                  type="number"
-                  id="amountInput"
-                  step="0.01"
-                  min="0"
-                  placeholder="0.00"
-                  required
-                />
+                <input type="number" id="amountInput" step="0.01" min="0" placeholder="0.00" required />
               </div>
               <div class="form-group">
                 <label for="descriptionInput">Description (Optional)</label>
-                <input
-                  type="text"
-                  id="descriptionInput"
-                  placeholder="e.g., Lunch sales"
-                />
+                <input type="text" id="descriptionInput" placeholder="e.g., Lunch sales" />
               </div>
               <div class="form-actions">
                 <button type="submit" id="saveBtn">💾 Save Earnings</button>
-                <button type="button" id="deleteBtn" class="delete-btn">
-                  🗑️ Delete Entry
-                </button>
+                <button type="button" id="deleteBtn" class="delete-btn">🗑️ Delete Entry</button>
               </div>
               <div id="messageContainer"></div>
             </form>
@@ -94,17 +81,7 @@
         <div id="tab-expenses" class="tab-content">
           <section class="form-section">
             <h2>💸 Add Expense / Transaction</h2>
-            <div
-              id="expenseBalanceWarning"
-              style="
-                display: none;
-                background: #fff3cd;
-                padding: 15px;
-                border-radius: 8px;
-                margin-bottom: 15px;
-                border: 1px solid #ffc107;
-              "
-            >
+            <div id="expenseBalanceWarning" style="display: none; background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffc107;">
               <strong>⚠️ Low Balance:</strong>
               <span id="expenseBalanceWarningText"></span>
             </div>
@@ -115,32 +92,15 @@
               </div>
               <div class="form-group">
                 <label for="expenseAmountInput">Amount (£)</label>
-                <input
-                  type="number"
-                  id="expenseAmountInput"
-                  step="0.01"
-                  min="0.01"
-                  placeholder="0.00"
-                  required
-                />
-                <small style="color: #666; display: block; margin-top: 5px"
-                  >Available balance:
-                  <strong id="expenseAvailableBalance">£0.00</strong></small
-                >
+                <input type="number" id="expenseAmountInput" step="0.01" min="0.01" placeholder="0.00" required />
+                <small style="color: #666; display: block; margin-top: 5px;">Available balance: <strong id="expenseAvailableBalance">£0.00</strong></small>
               </div>
               <div class="form-group">
                 <label for="expenseReasonInput">Reason for Expense</label>
-                <input
-                  type="text"
-                  id="expenseReasonInput"
-                  placeholder="e.g., Staff lunch, Ingredients, Utilities"
-                  required
-                />
+                <input type="text" id="expenseReasonInput" placeholder="e.g., Staff lunch, Ingredients, Utilities" required />
               </div>
               <div class="form-actions">
-                <button type="submit" id="expenseSaveBtn">
-                  💸 Add Expense
-                </button>
+                <button type="submit" id="expenseSaveBtn">💸 Add Expense</button>
               </div>
               <div id="expenseMessageContainer"></div>
             </form>
@@ -170,25 +130,14 @@
               </div>
               <div class="form-group">
                 <label for="inventoryItemInput">Item Name</label>
-                <input
-                  type="text"
-                  id="inventoryItemInput"
-                  placeholder="e.g., Chicken Breast"
-                  required
-                />
+                <input type="text" id="inventoryItemInput" placeholder="e.g., Chicken Breast" required />
               </div>
               <div class="form-row">
-                <div class="form-group" style="flex: 1">
+                <div class="form-group" style="flex: 1;">
                   <label for="inventoryQuantityInput">Quantity</label>
-                  <input
-                    type="number"
-                    id="inventoryQuantityInput"
-                    step="0.01"
-                    placeholder="0"
-                    required
-                  />
+                  <input type="number" id="inventoryQuantityInput" step="0.01" placeholder="0" required />
                 </div>
-                <div class="form-group" style="flex: 1">
+                <div class="form-group" style="flex: 1;">
                   <label for="inventoryUnitInput">Unit</label>
                   <select id="inventoryUnitInput" required>
                     <option value="kg">kg</option>
@@ -202,34 +151,18 @@
                 </div>
               </div>
               <div class="form-row">
-                <div class="form-group" style="flex: 1">
+                <div class="form-group" style="flex: 1;">
                   <label for="inventoryCostPerUnit">Cost Per Unit (£)</label>
-                  <input
-                    type="number"
-                    id="inventoryCostPerUnit"
-                    step="0.01"
-                    placeholder="0.00"
-                    required
-                  />
+                  <input type="number" id="inventoryCostPerUnit" step="0.01" placeholder="0.00" required />
                 </div>
-                <div class="form-group" style="flex: 1">
+                <div class="form-group" style="flex: 1;">
                   <label for="inventoryTotalCost">Total Cost (£)</label>
-                  <input
-                    type="number"
-                    id="inventoryTotalCost"
-                    step="0.01"
-                    placeholder="0.00"
-                    required
-                  />
+                  <input type="number" id="inventoryTotalCost" step="0.01" placeholder="0.00" required />
                 </div>
               </div>
               <div class="form-group">
                 <label for="inventorySupplierInput">Supplier (Optional)</label>
-                <input
-                  type="text"
-                  id="inventorySupplierInput"
-                  placeholder="e.g., Wholesale Market"
-                />
+                <input type="text" id="inventorySupplierInput" placeholder="e.g., Wholesale Market" />
               </div>
               <div class="form-group">
                 <label for="inventoryCategoryInput">Category</label>
@@ -246,234 +179,23 @@
               </div>
               <div class="form-group">
                 <label for="inventoryNotesInput">Notes (Optional)</label>
-                <input
-                  type="text"
-                  id="inventoryNotesInput"
-                  placeholder="Additional notes"
-                />
+                <input type="text" id="inventoryNotesInput" placeholder="Additional notes" />
               </div>
               <div class="form-group">
-                <label for="inventoryReceiptInput"
-                  >Upload Receipt (Optional)</label
-                >
-                <input
-                  type="file"
-                  id="inventoryReceiptInput"
-                  accept="image/*,.pdf"
-                />
-                <small style="color: #666; display: block; margin-top: 5px"
-                  >Supported formats: JPG, PNG, GIF, WEBP, PDF (Max 5MB)</small
-                >
+                <label for="inventoryReceiptInput">Upload Receipt (Optional)</label>
+                <input type="file" id="inventoryReceiptInput" accept="image/*,.pdf" />
+                <small style="color: #666; display: block; margin-top: 5px;">Supported formats: JPG, PNG, GIF, WEBP, PDF (Max 5MB)</small>
               </div>
               <div class="form-actions">
-                <button type="submit" id="inventorySaveBtn">
-                  📦 Add Purchase
-                </button>
+                <button type="submit" id="inventorySaveBtn">📦 Add Purchase</button>
               </div>
               <div id="inventoryMessageContainer"></div>
             </form>
           </section>
 
-          <!-- Edit Purchase Modal -->
-          <div
-            id="editPurchaseModal"
-            style="
-              display: none;
-              position: fixed;
-              top: 0;
-              left: 0;
-              width: 100%;
-              height: 100%;
-              background: rgba(0, 0, 0, 0.5);
-              z-index: 1000;
-              justify-content: center;
-              align-items: center;
-            "
-          >
-            <div
-              style="
-                background: white;
-                border-radius: 20px;
-                padding: 30px;
-                max-width: 500px;
-                width: 90%;
-                max-height: 80vh;
-                overflow-y: auto;
-                position: relative;
-                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-              "
-            >
-              <button
-                onclick="closeEditPurchaseModal()"
-                style="
-                  position: absolute;
-                  top: 15px;
-                  right: 20px;
-                  font-size: 24px;
-                  background: none;
-                  border: none;
-                  cursor: pointer;
-                  color: #999;
-                "
-              >
-                &times;
-              </button>
-              <h2 style="color: #333; margin-bottom: 20px">✏️ Edit Purchase</h2>
-
-              <form id="editPurchaseForm">
-                <input type="hidden" id="editPurchaseId" />
-
-                <div class="form-group">
-                  <label for="editPurchaseDate">Date</label>
-                  <input type="date" id="editPurchaseDate" required />
-                </div>
-
-                <div class="form-group">
-                  <label for="editPurchaseItem">Item Name</label>
-                  <input
-                    type="text"
-                    id="editPurchaseItem"
-                    placeholder="e.g., Chicken Breast"
-                    required
-                  />
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group" style="flex: 1">
-                    <label for="editPurchaseQuantity">Quantity</label>
-                    <input
-                      type="number"
-                      id="editPurchaseQuantity"
-                      step="0.01"
-                      placeholder="0"
-                      required
-                    />
-                  </div>
-                  <div class="form-group" style="flex: 1">
-                    <label for="editPurchaseUnit">Unit</label>
-                    <select id="editPurchaseUnit" required>
-                      <option value="kg">kg</option>
-                      <option value="g">g</option>
-                      <option value="liters">liters</option>
-                      <option value="ml">ml</option>
-                      <option value="pieces">pieces</option>
-                      <option value="boxes">boxes</option>
-                      <option value="bags">bags</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group" style="flex: 1">
-                    <label for="editPurchaseCostPerUnit"
-                      >Cost Per Unit (£)</label
-                    >
-                    <input
-                      type="number"
-                      id="editPurchaseCostPerUnit"
-                      step="0.01"
-                      placeholder="0.00"
-                      required
-                    />
-                  </div>
-                  <div class="form-group" style="flex: 1">
-                    <label for="editPurchaseTotalCost">Total Cost (£)</label>
-                    <input
-                      type="number"
-                      id="editPurchaseTotalCost"
-                      step="0.01"
-                      placeholder="0.00"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="editPurchaseSupplier">Supplier (Optional)</label>
-                  <input
-                    type="text"
-                    id="editPurchaseSupplier"
-                    placeholder="e.g., Wholesale Market"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="editPurchaseCategory">Category</label>
-                  <select id="editPurchaseCategory">
-                    <option value="Meat">Meat</option>
-                    <option value="Vegetables">Vegetables</option>
-                    <option value="Fruits">Fruits</option>
-                    <option value="Grains">Grains</option>
-                    <option value="Dairy">Dairy</option>
-                    <option value="Pantry">Pantry</option>
-                    <option value="Beverages">Beverages</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label for="editPurchaseNotes">Notes (Optional)</label>
-                  <input
-                    type="text"
-                    id="editPurchaseNotes"
-                    placeholder="Additional notes"
-                  />
-                </div>
-
-                <div class="form-actions" style="display: flex; gap: 10px">
-                  <button
-                    type="submit"
-                    id="editPurchaseSaveBtn"
-                    style="
-                      background: #6f42c1;
-                      color: white;
-                      padding: 12px 24px;
-                      border: none;
-                      border-radius: 8px;
-                      cursor: pointer;
-                      font-size: 16px;
-                      font-weight: 600;
-                      flex: 1;
-                    "
-                  >
-                    💾 Update Purchase
-                  </button>
-                  <button
-                    type="button"
-                    onclick="closeEditPurchaseModal()"
-                    style="
-                      background: #dc3545;
-                      color: white;
-                      padding: 12px 24px;
-                      border: none;
-                      border-radius: 8px;
-                      cursor: pointer;
-                      font-size: 16px;
-                      font-weight: 600;
-                    "
-                  >
-                    Cancel
-                  </button>
-                </div>
-
-                <div
-                  id="editPurchaseMessage"
-                  style="
-                    margin-top: 15px;
-                    padding: 10px;
-                    border-radius: 8px;
-                    display: none;
-                  "
-                ></div>
-              </form>
-            </div>
-          </div>
           <!-- Stock Summary -->
-          <!-- Current Stock -->
           <section class="stats-section">
             <h2>📊 Current Stock</h2>
-
-            <!-- Stock Summary Cards -->
             <div class="stock-summary">
               <div class="stock-summary-card">
                 <div class="stock-summary-label">📦 Total Items</div>
@@ -485,61 +207,44 @@
               </div>
               <div class="stock-summary-card">
                 <div class="stock-summary-label">💰 Total Value</div>
-                <div class="stock-summary-value" id="totalStockValue">
-                  £0.00
-                </div>
+                <div class="stock-summary-value" id="totalStockValue">£0.00</div>
               </div>
               <div class="stock-summary-card">
                 <div class="stock-summary-label">📂 Categories</div>
-                <div class="stock-summary-value" id="totalStockCategories">
-                  0
-                </div>
+                <div class="stock-summary-value" id="totalStockCategories">0</div>
               </div>
               <div class="stock-summary-card">
                 <div class="stock-summary-label">🔄 Last Updated</div>
-                <div
-                  class="stock-summary-value"
-                  id="stockLastUpdated"
-                  style="font-size: 1rem"
-                >
-                  -
-                </div>
+                <div class="stock-summary-value" id="stockLastUpdated" style="font-size: 1rem;">-</div>
               </div>
             </div>
 
-            <div class="stock-table-container">
-              <table class="stock-table">
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
                 <thead>
-                  <tr>
-                    <th>Item</th>
-                    <th>Quantity</th>
-                    <th>Unit</th>
-                    <th>Cost/Unit</th>
-                    <th>Total Value</th>
-                    <th>Category</th>
-                    <th>Last Updated</th>
-                    <th>Actions</th>
+                  <tr style="background: #667eea; color: white;">
+                    <th style="padding: 10px; text-align: left;">Item</th>
+                    <th style="padding: 10px; text-align: left;">Quantity</th>
+                    <th style="padding: 10px; text-align: left;">Unit</th>
+                    <th style="padding: 10px; text-align: left;">Cost/Unit</th>
+                    <th style="padding: 10px; text-align: left;">Total Value</th>
+                    <th style="padding: 10px; text-align: left;">Category</th>
+                    <th style="padding: 10px; text-align: left;">Last Updated</th>
+                    <th style="padding: 10px; text-align: left;">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="stockList">
-                  <tr>
-                    <td
-                      colspan="8"
-                      style="text-align: center; padding: 30px; color: #999"
-                    >
-                      ⏳ Loading stock...
-                    </td>
-                  </tr>
+                  <tr><td colspan="8" style="text-align: center; padding: 20px;">Loading stock...</td></tr>
                 </tbody>
-                <tfoot id="stockFooter" style="display: none">
-                  <tr>
-                    <td>📊 TOTAL</td>
-                    <td id="footerTotalQuantity">0</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td id="footerTotalValue">£0.00</td>
-                    <td id="footerTotalCategories">0 categories</td>
-                    <td colspan="2" id="footerTotalItems">0 items</td>
+                <tfoot id="stockFooter" style="display: none;">
+                  <tr style="background: #e9ecef; font-weight: bold;">
+                    <td style="padding: 10px;">📊 TOTAL</td>
+                    <td style="padding: 10px; color: #6f42c1;" id="footerTotalQuantity">0</td>
+                    <td style="padding: 10px;">-</td>
+                    <td style="padding: 10px;">-</td>
+                    <td style="padding: 10px; color: #28a745;" id="footerTotalValue">£0.00</td>
+                    <td style="padding: 10px;" id="footerTotalCategories">0 categories</td>
+                    <td style="padding: 10px;" colspan="2" id="footerTotalItems">0 items</td>
                   </tr>
                 </tfoot>
               </table>
@@ -577,80 +282,23 @@
           <section class="history-section">
             <h2>📜 Audit History</h2>
             <div class="history-controls">
-              <div style="display: flex; gap: 10px; flex-wrap: wrap">
-                <button
-                  id="refreshAuditBtn"
-                  style="
-                    background: #28a745;
-                    color: white;
-                    padding: 8px 16px;
-                    border: none;
-                    border-radius: 6px;
-                    cursor: pointer;
-                  "
-                >
-                  🔄 Refresh
-                </button>
-                <button
-                  id="clearAuditFilterBtn"
-                  style="
-                    background: #6c757d;
-                    color: white;
-                    padding: 8px 16px;
-                    border: none;
-                    border-radius: 6px;
-                    cursor: pointer;
-                  "
-                >
-                  Clear Filter
-                </button>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button id="refreshAuditBtn" style="background: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">🔄 Refresh</button>
+                <button id="clearAuditFilterBtn" style="background: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">Clear Filter</button>
               </div>
-              <div
-                style="
-                  display: flex;
-                  gap: 10px;
-                  align-items: center;
-                  flex-wrap: wrap;
-                "
-              >
+              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <label for="auditFilterAction">Action:</label>
-                <select
-                  id="auditFilterAction"
-                  style="
-                    padding: 6px 12px;
-                    border-radius: 6px;
-                    border: 1px solid #ddd;
-                  "
-                >
+                <select id="auditFilterAction" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd;">
                   <option value="all">All Actions</option>
                   <option value="CREATE">➕ Create</option>
                   <option value="UPDATE">✏️ Update</option>
                   <option value="DELETE">🗑️ Delete</option>
                 </select>
-                <label for="auditFilterDate" style="margin-left: 10px"
-                  >Date:</label
-                >
-                <input
-                  type="date"
-                  id="auditFilterDate"
-                  style="
-                    padding: 6px 12px;
-                    border-radius: 6px;
-                    border: 1px solid #ddd;
-                  "
-                />
+                <label for="auditFilterDate" style="margin-left: 10px;">Date:</label>
+                <input type="date" id="auditFilterDate" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd;" />
               </div>
             </div>
-            <div
-              id="auditSummary"
-              style="
-                margin: 10px 0;
-                padding: 10px;
-                background: #e9ecef;
-                border-radius: 8px;
-                display: none;
-              "
-            >
+            <div id="auditSummary" style="margin: 10px 0; padding: 10px; background: #e9ecef; border-radius: 8px; display: none;">
               <span id="auditStats"></span>
             </div>
             <div id="auditList">
@@ -686,21 +334,11 @@
           <section class="stats-section">
             <h2>📊 Expense Summary</h2>
             <div class="stats-grid">
-              <div
-                class="stat-card"
-                style="
-                  background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
-                "
-              >
+              <div class="stat-card" style="background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);">
                 <div class="stat-label">Total Expenses</div>
                 <div class="stat-value" id="totalExpensesStat">£0.00</div>
               </div>
-              <div
-                class="stat-card"
-                style="
-                  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-                "
-              >
+              <div class="stat-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
                 <div class="stat-label">Net Balance</div>
                 <div class="stat-value" id="netBalanceStat">£0.00</div>
               </div>
@@ -727,218 +365,142 @@
         </div>
       </main>
 
-      <!-- Edit Purchase Modal -->
-      <!-- Edit Purchase Modal -->
-<div id="editPurchaseModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-    <div style="background: white; border-radius: 20px; padding: 30px; max-width: 650px; width: 95%; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-        
-        <!-- Close Button -->
-        <button onclick="closeEditPurchaseModal()" style="position: absolute; top: 15px; right: 20px; font-size: 28px; background: none; border: none; cursor: pointer; color: #999;">&times;</button>
-        
-        <!-- Header with Title and Edit Button -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-            <h2 id="editModalTitle" style="color: #333; margin: 0;">📦 Purchase Details</h2>
+      <!-- ============================================ -->
+      <!-- EDIT PURCHASE MODAL - VIEW MODE FIRST -->
+      <!-- ============================================ -->
+      <div id="editPurchaseModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: white; border-radius: 20px; padding: 30px; max-width: 650px; width: 95%; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+          
+          <button onclick="closeEditPurchaseModal()" style="position: absolute; top: 15px; right: 20px; font-size: 28px; background: none; border: none; cursor: pointer; color: #999;">&times;</button>
+          
+          <!-- Header with Title and Edit Button -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <h2 id="editModalTitle" style="color: #333; margin: 0;">📦 View Purchase Inventory</h2>
             <button id="editToggleBtn" onclick="toggleEditMode()" style="background: #ffc107; color: #333; padding: 8px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">
-                ✏️ Edit
+              ✏️ Edit
             </button>
-        </div>
-        
-        <!-- ============================================ -->
-        <!-- READ-ONLY VIEW MODE -->
-        <!-- ============================================ -->
-        <div id="editPurchaseViewMode">
+          </div>
+          
+          <!-- ============================================ -->
+          <!-- READ-ONLY VIEW MODE (SHOWN FIRST) -->
+          <!-- ============================================ -->
+          <div id="editPurchaseViewMode" style="display: block;">
             <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 15px;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <div><strong>📅 Date:</strong> <span id="viewPurchaseDate">-</span></div>
-                    <div><strong>🕐 Time:</strong> <span id="viewPurchaseTime">-</span></div>
-                    <div><strong>📦 Item:</strong> <span id="viewPurchaseItem">-</span></div>
-                    <div><strong>📊 Quantity:</strong> <span id="viewPurchaseQuantity">-</span> <span id="viewPurchaseUnit">-</span></div>
-                    <div><strong>💰 Cost Per Unit:</strong> <span id="viewPurchaseCost">-</span></div>
-                    <div><strong>💷 Total Cost:</strong> <span id="viewPurchaseTotal">-</span></div>
-                    <div><strong>🏢 Supplier:</strong> <span id="viewPurchaseSupplier">-</span></div>
-                    <div><strong>📂 Category:</strong> <span id="viewPurchaseCategory">-</span></div>
-                </div>
-                <div style="margin-top: 12px;"><strong>📝 Notes:</strong> <span id="viewPurchaseNotes">-</span></div>
-                <div style="margin-top: 12px;"><strong>📎 Receipt:</strong> <span id="viewPurchaseReceipt">-</span></div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div><strong>📅 Date:</strong> <span id="viewPurchaseDate">-</span></div>
+                <div><strong>🕐 Time:</strong> <span id="viewPurchaseTime">-</span></div>
+                <div><strong>📦 Item:</strong> <span id="viewPurchaseItem">-</span></div>
+                <div><strong>📊 Quantity:</strong> <span id="viewPurchaseQuantity">-</span> <span id="viewPurchaseUnit">-</span></div>
+                <div><strong>💰 Cost Per Unit:</strong> <span id="viewPurchaseCost">-</span></div>
+                <div><strong>💷 Total Cost:</strong> <span id="viewPurchaseTotal">-</span></div>
+                <div><strong>🏢 Supplier:</strong> <span id="viewPurchaseSupplier">-</span></div>
+                <div><strong>📂 Category:</strong> <span id="viewPurchaseCategory">-</span></div>
+              </div>
+              <div style="margin-top: 12px;"><strong>📝 Notes:</strong> <span id="viewPurchaseNotes">-</span></div>
+              <div style="margin-top: 12px;"><strong>📎 Receipt:</strong> <span id="viewPurchaseReceipt">-</span></div>
             </div>
             
-            <!-- Receipt Image Preview -->
             <div id="viewReceiptImage" style="margin-top: 10px; display: none; text-align: center;">
-                <strong>Receipt Image:</strong><br>
-                <img id="viewReceiptImg" src="" alt="Receipt" style="max-width: 100%; max-height: 300px; border-radius: 8px; border: 1px solid #ddd; margin-top: 5px;" />
+              <strong>Receipt Image:</strong><br>
+              <img id="viewReceiptImg" src="" alt="Receipt" style="max-width: 100%; max-height: 300px; border-radius: 8px; border: 1px solid #ddd; margin-top: 5px;" />
             </div>
-        </div>
-        
-        <!-- ============================================ -->
-        <!-- EDITABLE MODE (HIDDEN BY DEFAULT) -->
-        <!-- ============================================ -->
-        <div id="editPurchaseEditMode" style="display: none;">
+          </div>
+          
+          <!-- ============================================ -->
+          <!-- EDITABLE MODE (HIDDEN BY DEFAULT) -->
+          <!-- ============================================ -->
+          <div id="editPurchaseEditMode" style="display: none;">
             <form id="editPurchaseForm">
-                <input type="hidden" id="editPurchaseId" />
-                
-                <div class="form-row">
-                    <div class="form-group" style="flex: 1;">
-                        <label for="editPurchaseDate">📅 Date</label>
-                        <input type="date" id="editPurchaseDate" required />
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label for="editPurchaseTime">🕐 Time</label>
-                        <input type="time" id="editPurchaseTime" required step="1" />
-                    </div>
+              <input type="hidden" id="editPurchaseId" />
+              
+              <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                  <label for="editPurchaseDate">📅 Date</label>
+                  <input type="date" id="editPurchaseDate" required />
                 </div>
-                
-                <div class="form-group">
-                    <label for="editPurchaseItem">📦 Item Name</label>
-                    <input type="text" id="editPurchaseItem" placeholder="e.g., Chicken Breast" required />
+                <div class="form-group" style="flex: 1;">
+                  <label for="editPurchaseTime">🕐 Time</label>
+                  <input type="time" id="editPurchaseTime" required step="1" />
                 </div>
-                
-                <div class="form-row">
-                    <div class="form-group" style="flex: 1;">
-                        <label for="editPurchaseQuantity">📊 Quantity</label>
-                        <input type="number" id="editPurchaseQuantity" step="0.01" placeholder="0" required />
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label for="editPurchaseUnit">Unit</label>
-                        <select id="editPurchaseUnit" required>
-                            <option value="kg">kg</option>
-                            <option value="g">g</option>
-                            <option value="liters">liters</option>
-                            <option value="ml">ml</option>
-                            <option value="pieces">pieces</option>
-                            <option value="boxes">boxes</option>
-                            <option value="bags">bags</option>
-                        </select>
-                    </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="editPurchaseItem">📦 Item Name</label>
+                <input type="text" id="editPurchaseItem" placeholder="e.g., Chicken Breast" required />
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                  <label for="editPurchaseQuantity">📊 Quantity</label>
+                  <input type="number" id="editPurchaseQuantity" step="0.01" placeholder="0" required />
                 </div>
-                
-                <div class="form-row">
-                    <div class="form-group" style="flex: 1;">
-                        <label for="editPurchaseCostPerUnit">💰 Cost Per Unit (£)</label>
-                        <input type="number" id="editPurchaseCostPerUnit" step="0.01" placeholder="0.00" required />
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label for="editPurchaseTotalCost">💷 Total Cost (£)</label>
-                        <input type="number" id="editPurchaseTotalCost" step="0.01" placeholder="0.00" required />
-                    </div>
+                <div class="form-group" style="flex: 1;">
+                  <label for="editPurchaseUnit">Unit</label>
+                  <select id="editPurchaseUnit" required>
+                    <option value="kg">kg</option>
+                    <option value="g">g</option>
+                    <option value="liters">liters</option>
+                    <option value="ml">ml</option>
+                    <option value="pieces">pieces</option>
+                    <option value="boxes">boxes</option>
+                    <option value="bags">bags</option>
+                  </select>
                 </div>
-                
-                <div class="form-group">
-                    <label for="editPurchaseSupplier">🏢 Supplier (Optional)</label>
-                    <input type="text" id="editPurchaseSupplier" placeholder="e.g., Wholesale Market" />
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                  <label for="editPurchaseCostPerUnit">💰 Cost Per Unit (£)</label>
+                  <input type="number" id="editPurchaseCostPerUnit" step="0.01" placeholder="0.00" required />
                 </div>
-                
-                <div class="form-group">
-                    <label for="editPurchaseCategory">📂 Category</label>
-                    <select id="editPurchaseCategory">
-                        <option value="Meat">Meat</option>
-                        <option value="Vegetables">Vegetables</option>
-                        <option value="Fruits">Fruits</option>
-                        <option value="Grains">Grains</option>
-                        <option value="Dairy">Dairy</option>
-                        <option value="Pantry">Pantry</option>
-                        <option value="Beverages">Beverages</option>
-                        <option value="Other">Other</option>
-                    </select>
+                <div class="form-group" style="flex: 1;">
+                  <label for="editPurchaseTotalCost">💷 Total Cost (£)</label>
+                  <input type="number" id="editPurchaseTotalCost" step="0.01" placeholder="0.00" required />
                 </div>
-                
-                <div class="form-group">
-                    <label for="editPurchaseNotes">📝 Notes (Optional)</label>
-                    <input type="text" id="editPurchaseNotes" placeholder="Additional notes" />
-                </div>
-                
-                <div id="editPurchaseMessage" style="margin-top: 15px; padding: 10px; border-radius: 8px; display: none;"></div>
-                
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
-                    <button type="submit" id="editPurchaseSaveBtn" style="background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; flex: 1;">
-                        💾 Save Changes
-                    </button>
-                    <button type="button" onclick="cancelEditMode()" style="background: #6c757d; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">
-                        Cancel
-                    </button>
-                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="editPurchaseSupplier">🏢 Supplier (Optional)</label>
+                <input type="text" id="editPurchaseSupplier" placeholder="e.g., Wholesale Market" />
+              </div>
+              
+              <div class="form-group">
+                <label for="editPurchaseCategory">📂 Category</label>
+                <select id="editPurchaseCategory">
+                  <option value="Meat">Meat</option>
+                  <option value="Vegetables">Vegetables</option>
+                  <option value="Fruits">Fruits</option>
+                  <option value="Grains">Grains</option>
+                  <option value="Dairy">Dairy</option>
+                  <option value="Pantry">Pantry</option>
+                  <option value="Beverages">Beverages</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="editPurchaseNotes">📝 Notes (Optional)</label>
+                <input type="text" id="editPurchaseNotes" placeholder="Additional notes" />
+              </div>
+              
+              <div id="editPurchaseMessage" style="margin-top: 15px; padding: 10px; border-radius: 8px; display: none;"></div>
+              
+              <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button type="submit" id="editPurchaseSaveBtn" style="background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; flex: 1;">
+                  💾 Update Purchase
+                </button>
+                <button type="button" onclick="cancelEditMode()" style="background: #6c757d; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">
+                  Cancel
+                </button>
+              </div>
             </form>
+          </div>
         </div>
-    </div>
-</div>
+      </div>
 
       <footer>
         <p>&copy; 2024 Takeaway Earnings Tracker</p>
       </footer>
-    </div>
-
-    <!-- Item Details Modal -->
-    <div
-      id="itemModal"
-      style="
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        justify-content: center;
-        align-items: center;
-      "
-    >
-      <div
-        style="
-          background: white;
-          border-radius: 20px;
-          padding: 30px;
-          max-width: 700px;
-          width: 90%;
-          max-height: 80vh;
-          overflow-y: auto;
-          position: relative;
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        "
-      >
-        <button
-          onclick="closeItemModal()"
-          style="
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 24px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #999;
-          "
-        >
-          &times;
-        </button>
-        <h2 id="modalItemName" style="color: #333; margin-bottom: 10px">
-          Item Details
-        </h2>
-        <div
-          id="modalCurrentStock"
-          style="
-            background: #e9ecef;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-          "
-        >
-          <strong>Current Stock:</strong> <span id="modalStockQuantity">0</span>
-          <span id="modalStockUnit">kg</span>
-          <span style="margin-left: 20px"
-            ><strong>Category:</strong> <span id="modalCategory">-</span></span
-          >
-          <span style="margin-left: 20px"
-            ><strong>Last Updated:</strong>
-            <span id="modalLastUpdated">-</span></span
-          >
-        </div>
-        <h3 style="color: #555; margin-bottom: 15px">Purchase History</h3>
-        <div id="modalPurchaseHistory">
-          <p style="color: #999; text-align: center; padding: 20px">
-            Loading history...
-          </p>
-        </div>
-      </div>
     </div>
 
     <script src="script.js"></script>
