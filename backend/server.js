@@ -11,6 +11,7 @@ const inventoryRoutes = require('./routes/inventory');
 const balanceRoutes = require('./routes/balance');
 const statisticsRoutes = require('./routes/statistics');
 const auditRoutes = require('./routes/audit');
+const shopOrdersRouter = require('./routes/shopOrders');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -51,6 +52,7 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/balance', balanceRoutes);
 app.use('/api/statistics', statisticsRoutes);
 app.use('/api/audit', auditRoutes);
+app.use('/api/shop-orders', shopOrdersRouter);   // ← ADDED
 
 // ============================================
 // START SERVER

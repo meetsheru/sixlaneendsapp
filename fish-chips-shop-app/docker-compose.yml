@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: fish_db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: fishshop
+    ports:
+      - "5434:5432"   # Changed from 5432 to 5434 (5433 is taken by takeaway-postgres)
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: fish_backend
+    ports:
+      - "3001:3000"   # Changed from 3000:3000 (3000 is taken by takeaway-backend)
+    environment:
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_HOST: db
+      DB_NAME: fishshop
+      DB_PORT: 5432   # This stays 5432 because it's the internal Docker network port
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

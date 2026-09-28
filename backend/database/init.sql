@@ -309,6 +309,145 @@ FROM inventory_purchases
 WHERE id IN (SELECT id FROM inventory_purchases)
 ON CONFLICT DO NOTHING;
 
+
+
+-- ============================================
+-- SHOP ORDERS TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS shop_orders (
+    id SERIAL PRIMARY KEY,
+    date DATE NOT NULL DEFAULT CURRENT_DATE,
+    time TIME NOT NULL DEFAULT CURRENT_TIME,
+    items JSONB NOT NULL,
+    total_price DECIMAL(10, 2) NOT NULL,
+    customer_name VARCHAR(255),
+    notes TEXT,
+    status VARCHAR(50) NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_shop_orders_date ON shop_orders(date);
+CREATE INDEX IF NOT EXISTS idx_shop_orders_created_at ON shop_orders(created_at);
+CREATE INDEX IF NOT EXISTS idx_shop_orders_status ON shop_orders(status);
+CREATE INDEX IF NOT EXISTS idx_shop_orders_customer ON shop_orders(customer_name);
+
+-- ============================================
+-- SHOP ORDERS AUDIT TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS shop_orders_audit (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER NOT NULL,
+    action VARCHAR(10) NOT NULL,
+    old_items JSONB,
+    new_items JSONB,
+    old_total DECIMAL(10, 2),
+    new_total DECIMAL(10, 2),
+    old_status VARCHAR(50),
+    new_status VARCHAR(50),
+    changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    changed_by VARCHAR(50) DEFAULT 'system'
+);
+
+CREATE INDEX IF NOT EXISTS idx_shop_orders_audit_order_id ON shop_orders_audit(order_id);
+CREATE INDEX IF NOT EXISTS idx_shop_orders_audit_changed_at ON shop_orders_audit(changed_at);
+CREATE INDEX IF NOT EXISTS idx_shop_orders_audit_action ON shop_orders_audit(action);
+
+-- ============================================
+-- TRIGGER: UPDATE UPDATED_AT FOR SHOP ORDERS
+-- ============================================
+DROP TRIGGER IF EXISTS update_shop_orders_updated_at ON shop_orders;
+CREATE TRIGGER update_shop_orders_updated_at
+    BEFORE UPDATE ON shop_orders
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================
+-- TRIGGER: SHOP ORDERS AUDIT
+-- ============================================
+CREATE OR REPLACE FUNCTION log_shop_orders_changes()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        INSERT INTO shop_orders_audit (order_id, action, new_items, new_total, new_status)
+        VALUES (NEW.id, 'CREATE', NEW.items, NEW.total_price, NEW.status);
+        RETURN NEW;
+    ELSIF TG_OP = 'UPDATE' THEN
+        INSERT INTO shop_orders_audit (order_id, action,
+            old_items, new_items,
+            old_total, new_total,
+            old_status, new_status)
+        VALUES (OLD.id, 'UPDATE',
+            OLD.items, NEW.items,
+            OLD.total_price, NEW.total_price,
+            OLD.status, NEW.status);
+        RETURN NEW;
+    ELSIF TG_OP = 'DELETE' THEN
+        INSERT INTO shop_orders_audit (order_id, action, old_items, old_total, old_status)
+        VALUES (OLD.id, 'DELETE', OLD.items, OLD.total_price, OLD.status);
+        RETURN OLD;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS shop_orders_audit_trigger ON shop_orders;
+CREATE TRIGGER shop_orders_audit_trigger
+AFTER INSERT OR UPDATE OR DELETE ON shop_orders
+FOR EACH ROW EXECUTE FUNCTION log_shop_orders_changes();
+
+-- ============================================
+-- SHOP MENU TABLE (optional but recommended)
+-- ============================================
+-- This lets you edit menu items from the DB later
+-- without redeploying the frontend.
+CREATE TABLE IF NOT EXISTS shop_menu_items (
+    id SERIAL PRIMARY KEY,
+    category VARCHAR(100) NOT NULL,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    price DECIMAL(10, 2) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    sort_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_shop_menu_category ON shop_menu_items(category);
+CREATE INDEX IF NOT EXISTS idx_shop_menu_active ON shop_menu_items(is_active);
+
+-- ============================================
+-- SAMPLE DATA - SHOP MENU
+-- ============================================
+INSERT INTO shop_menu_items (category, name, price, sort_order) VALUES
+    ('MAINS', 'Special Fish & Chips', 10.00, 1),
+    ('MAINS', 'Fish & Chips', 8.00, 2),
+    ('MAINS', 'Special Fish', 7.00, 3),
+    ('MAINS', 'Fish (Regular)', 5.00, 4),
+    ('MAINS', 'Chips', 3.00, 5),
+    ('MAINS', 'Fish Cakes', 3.00, 6),
+    ('MAINS', 'Scallops', 0.70, 7),
+    ('MAINS', 'Jumbo Sausage', 1.50, 8),
+    ('BUTTY', 'Fish & Chip Butty', 7.50, 1),
+    ('BUTTY', 'Fish Butty', 6.00, 2),
+    ('BUTTY', 'Cake Butty', 4.00, 3),
+    ('BUTTY', 'Chip Butty', 3.50, 4),
+    ('BUTTY', 'Sausage Butty', 2.50, 5),
+    ('KIDS MENU', 'Fish & Chips', 5.00, 1),
+    ('KIDS MENU', 'Fish Nuggets & Chips', 4.50, 2),
+    ('KIDS MENU', 'Chicken Nuggets & Chips', 4.50, 3),
+    ('KIDS MENU', 'Sausage & Chips', 2.80, 4),
+    ('SIDES', 'Peas (Small)', 1.20, 1),
+    ('SIDES', 'Peas (Large)', 1.80, 2),
+    ('SIDES', 'Chip Shop Curry (Small)', 1.20, 3),
+    ('SIDES', 'Chip Shop Curry (Large)', 1.80, 4),
+    ('SIDES', 'Irish Curry (Small)', 1.20, 5),
+    ('SIDES', 'Irish Curry (Large)', 1.80, 6),
+    ('SIDES', 'Gravy (Small)', 1.20, 7),
+    ('SIDES', 'Gravy (Large)', 1.80, 8),
+    ('BURGERS', 'Cheese Burger & Chips', 5.00, 1),
+    ('BURGERS', 'Chicken Burger & Chips', 5.00, 2)
+ON CONFLICT (name) DO NOTHING;
+
 -- ============================================
 -- VERIFY SETUP
 -- ============================================
