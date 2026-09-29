@@ -162,7 +162,7 @@ ON CONFLICT (item_name) DO UPDATE SET
     last_updated = CURRENT_TIMESTAMP;
 
 -- ============================================
--- TRIGGER: UPDATE UPDATED_AT FOR EARNINGS
+-- TRIGGER: UPDATE UPDATED_AT
 -- ============================================
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -277,39 +277,17 @@ EXECUTE FUNCTION update_inventory_stock();
 -- ============================================
 -- INITIAL AUDIT DATA
 -- ============================================
--- Add existing earnings to audit
 INSERT INTO earnings_audit (entry_id, action, new_amount, new_description, new_time, changed_at)
-SELECT 
-    id, 
-    'CREATE', 
-    amount, 
-    description, 
-    time,
-    created_at
-FROM earnings 
+SELECT id, 'CREATE', amount, description, time, created_at
+FROM earnings
 WHERE id IN (SELECT id FROM earnings)
 ON CONFLICT DO NOTHING;
 
--- Add existing inventory to audit
 INSERT INTO inventory_audit (purchase_id, action, item_name, quantity, unit, cost_per_unit, total_cost, supplier, category, notes, receipt_filename, changed_at)
-SELECT 
-    id, 
-    'CREATE', 
-    item_name, 
-    quantity, 
-    unit, 
-    cost_per_unit, 
-    total_cost, 
-    supplier, 
-    category, 
-    notes, 
-    receipt_filename,
-    created_at
+SELECT id, 'CREATE', item_name, quantity, unit, cost_per_unit, total_cost, supplier, category, notes, receipt_filename, created_at
 FROM inventory_purchases
 WHERE id IN (SELECT id FROM inventory_purchases)
 ON CONFLICT DO NOTHING;
-
-
 
 -- ============================================
 -- SHOP ORDERS TABLE
@@ -323,14 +301,23 @@ CREATE TABLE IF NOT EXISTS shop_orders (
     customer_name VARCHAR(255),
     notes TEXT,
     status VARCHAR(50) NOT NULL DEFAULT 'pending',
+    transaction_id VARCHAR(30),
+    payment_method VARCHAR(10) NOT NULL DEFAULT 'cash',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT shop_orders_payment_method_check
+      CHECK (payment_method IN ('cash', 'card'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_shop_orders_date ON shop_orders(date);
 CREATE INDEX IF NOT EXISTS idx_shop_orders_created_at ON shop_orders(created_at);
 CREATE INDEX IF NOT EXISTS idx_shop_orders_status ON shop_orders(status);
 CREATE INDEX IF NOT EXISTS idx_shop_orders_customer ON shop_orders(customer_name);
+CREATE INDEX IF NOT EXISTS idx_shop_orders_payment_method ON shop_orders(payment_method);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_shop_orders_transaction_id
+  ON shop_orders(transaction_id)
+  WHERE transaction_id IS NOT NULL;
 
 -- ============================================
 -- SHOP ORDERS AUDIT TABLE
@@ -345,6 +332,8 @@ CREATE TABLE IF NOT EXISTS shop_orders_audit (
     new_total DECIMAL(10, 2),
     old_status VARCHAR(50),
     new_status VARCHAR(50),
+    old_payment_method VARCHAR(10),
+    new_payment_method VARCHAR(10),
     changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     changed_by VARCHAR(50) DEFAULT 'system'
 );
@@ -369,22 +358,24 @@ CREATE OR REPLACE FUNCTION log_shop_orders_changes()
 RETURNS TRIGGER AS $$
 BEGIN
     IF TG_OP = 'INSERT' THEN
-        INSERT INTO shop_orders_audit (order_id, action, new_items, new_total, new_status)
-        VALUES (NEW.id, 'CREATE', NEW.items, NEW.total_price, NEW.status);
+        INSERT INTO shop_orders_audit (order_id, action, new_items, new_total, new_status, new_payment_method)
+        VALUES (NEW.id, 'CREATE', NEW.items, NEW.total_price, NEW.status, NEW.payment_method);
         RETURN NEW;
     ELSIF TG_OP = 'UPDATE' THEN
         INSERT INTO shop_orders_audit (order_id, action,
             old_items, new_items,
             old_total, new_total,
-            old_status, new_status)
+            old_status, new_status,
+            old_payment_method, new_payment_method)
         VALUES (OLD.id, 'UPDATE',
             OLD.items, NEW.items,
             OLD.total_price, NEW.total_price,
-            OLD.status, NEW.status);
+            OLD.status, NEW.status,
+            OLD.payment_method, NEW.payment_method);
         RETURN NEW;
     ELSIF TG_OP = 'DELETE' THEN
-        INSERT INTO shop_orders_audit (order_id, action, old_items, old_total, old_status)
-        VALUES (OLD.id, 'DELETE', OLD.items, OLD.total_price, OLD.status);
+        INSERT INTO shop_orders_audit (order_id, action, old_items, old_total, old_status, old_payment_method)
+        VALUES (OLD.id, 'DELETE', OLD.items, OLD.total_price, OLD.status, OLD.payment_method);
         RETURN OLD;
     END IF;
     RETURN NULL;
@@ -397,19 +388,51 @@ AFTER INSERT OR UPDATE OR DELETE ON shop_orders
 FOR EACH ROW EXECUTE FUNCTION log_shop_orders_changes();
 
 -- ============================================
--- SHOP MENU TABLE (optional but recommended)
+-- TRIGGER: AUTO-GENERATE TRANSACTION ID
 -- ============================================
--- This lets you edit menu items from the DB later
--- without redeploying the frontend.
+CREATE OR REPLACE FUNCTION generate_transaction_id()
+RETURNS TRIGGER AS $$
+DECLARE
+  today_str TEXT;
+  next_seq INTEGER;
+BEGIN
+  IF NEW.transaction_id IS NOT NULL AND NEW.transaction_id <> '' THEN
+    RETURN NEW;
+  END IF;
+
+  today_str := TO_CHAR(COALESCE(NEW.created_at, NOW()), 'YYYYMMDD');
+
+  SELECT COALESCE(MAX(
+    CAST(SPLIT_PART(transaction_id, '-', 3) AS INTEGER)
+  ), 0) + 1
+  INTO next_seq
+  FROM shop_orders
+  WHERE transaction_id LIKE 'TXN-' || today_str || '-%';
+
+  NEW.transaction_id := 'TXN-' || today_str || '-' || LPAD(next_seq::TEXT, 4, '0');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_shop_orders_transaction_id ON shop_orders;
+CREATE TRIGGER trg_shop_orders_transaction_id
+  BEFORE INSERT ON shop_orders
+  FOR EACH ROW
+  EXECUTE FUNCTION generate_transaction_id();
+
+-- ============================================
+-- SHOP MENU TABLE
+-- ============================================
 CREATE TABLE IF NOT EXISTS shop_menu_items (
     id SERIAL PRIMARY KEY,
     category VARCHAR(100) NOT NULL,
-    name VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     sort_order INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT shop_menu_items_category_name_key UNIQUE (category, name)
 );
 
 CREATE INDEX IF NOT EXISTS idx_shop_menu_category ON shop_menu_items(category);
@@ -444,9 +467,11 @@ INSERT INTO shop_menu_items (category, name, price, sort_order) VALUES
     ('SIDES', 'Irish Curry (Large)', 1.80, 6),
     ('SIDES', 'Gravy (Small)', 1.20, 7),
     ('SIDES', 'Gravy (Large)', 1.80, 8),
+    ('DRINKS', 'Soft Drink 1', 1.20, 1),
+    ('DRINKS', 'Soft Drink 2', 1.00, 2),
     ('BURGERS', 'Cheese Burger & Chips', 5.00, 1),
     ('BURGERS', 'Chicken Burger & Chips', 5.00, 2)
-ON CONFLICT (name) DO NOTHING;
+ON CONFLICT (category, name) DO NOTHING;
 
 -- ============================================
 -- VERIFY SETUP
@@ -454,5 +479,6 @@ ON CONFLICT (name) DO NOTHING;
 DO $$
 BEGIN
     RAISE NOTICE '✅ Database setup complete!';
-    RAISE NOTICE '📊 Tables created: earnings, earnings_audit, expenses, inventory_purchases, inventory_audit, inventory_stock';
+    RAISE NOTICE '📊 Tables created: earnings, earnings_audit, expenses, inventory_purchases, inventory_audit, inventory_stock, shop_orders, shop_orders_audit, shop_menu_items';
+    RAISE NOTICE '🍟 Shop menu seeded with 29 items across 6 categories';
 END $$;
