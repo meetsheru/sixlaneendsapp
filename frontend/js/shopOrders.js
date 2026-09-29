@@ -17,6 +17,47 @@ const ShopOrderModule = (() => {
     if (radio) radio.checked = true;
   };
 
+    // ---------- Cash change calculator ----------
+  const updateCashChange = () => {
+    const total = getTotal();
+    const tenderedEl = document.getElementById("shop-cash-tendered");
+    const changeEl = document.getElementById("shop-cash-change");
+    if (!tenderedEl || !changeEl) return;
+
+    const tendered = parseFloat(tenderedEl.value);
+    if (isNaN(tendered) || tendered <= 0) {
+      changeEl.innerText = "£0.00";
+      changeEl.classList.remove("negative");
+      return;
+    }
+
+    const change = tendered - total;
+    if (change < 0) {
+      changeEl.innerText = `−£${Math.abs(change).toFixed(2)} (short)`;
+      changeEl.classList.add("negative");
+    } else {
+      changeEl.innerText = `£${change.toFixed(2)}`;
+      changeEl.classList.remove("negative");
+    }
+  };
+
+  const toggleCashBox = () => {
+    const box = document.getElementById("cash-change-box");
+    if (!box) return;
+    if (getPaymentMethod() === "cash") {
+      box.classList.remove("hidden");
+    } else {
+      box.classList.add("hidden");
+      const t = document.getElementById("shop-cash-tendered");
+      const c = document.getElementById("shop-cash-change");
+      if (t) t.value = "";
+      if (c) {
+        c.innerText = "£0.00";
+        c.classList.remove("negative");
+      }
+    }
+  };
+
   // ---------- Load order into cart for editing ----------
   const loadOrderForEdit = (id, ordersList) => {
     const source = ordersList || window.__lastShopOrders || [];
@@ -147,7 +188,10 @@ const ShopOrderModule = (() => {
         saveBtn.innerText = editingOrderId ? "Update Order" : "Place Order";
     }
 
-    if (totalEl) totalEl.innerText = `£${getTotal().toFixed(2)}`;
+      if (totalEl) totalEl.innerText = `£${getTotal().toFixed(2)}`;
+
+    // Recompute change due whenever the cart total changes
+    updateCashChange();
   };
 
   // ---------- Save / Update ----------
@@ -204,7 +248,12 @@ const ShopOrderModule = (() => {
       document.getElementById("shop-customer-name").value = "";
       document.getElementById("shop-notes").value = "";
       setPaymentMethod("cash");
+
+      const tenderedEl = document.getElementById("shop-cash-tendered");
+      if (tenderedEl) tenderedEl.value = "";
+
       updateUI();
+      toggleCashBox();
 
       await loadHistory();
 
@@ -338,7 +387,23 @@ const ShopOrderModule = (() => {
       });
     });
 
+        // Cash change calculator
+    document
+      .getElementById("shop-cash-tendered")
+      ?.addEventListener("input", updateCashChange);
+
+    // Show/hide cash box based on payment method
+    document
+      .querySelectorAll('input[name="shop-payment-method"]')
+      .forEach((radio) => {
+        radio.addEventListener("change", toggleCashBox);
+      });
+
+    // Initial state
+    toggleCashBox();
+
     loadHistory();
+  
   };
 
   return { init, addItem, loadHistory, loadOrderForEdit };

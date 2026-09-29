@@ -580,6 +580,7 @@
                 />
 
                                 <!-- Payment Method -->
+                                <!-- Payment Method -->
                 <div class="payment-method-box">
                   <div class="payment-method-title">💳 Payment Method</div>
                   <label class="payment-method-option">
@@ -591,7 +592,25 @@
                     <span>💳 Card</span>
                   </label>
                 </div>
-                
+
+                <!-- Cash Change Calculator (only visible for Cash) -->
+                <div id="cash-change-box" class="cash-change-box">
+                  <div class="cash-change-row">
+                    <label for="shop-cash-tendered">💵 Customer gave:</label>
+                    <input
+                      type="number"
+                      id="shop-cash-tendered"
+                      placeholder="0.00"
+                      step="0.01"
+                      min="0"
+                    />
+                  </div>
+                  <div class="cash-change-result">
+                    <span>🪙 Change due:</span>
+                    <span id="shop-cash-change">£0.00</span>
+                  </div>
+                </div>
+
                 <!-- Custom item entry -->
                 <div class="custom-item-box">
                   <div class="custom-item-title">➕ Add Custom Item</div>

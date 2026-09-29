@@ -947,3 +947,59 @@ button {
         gap: 0;
     }
 }
+
+/* Cash change calculator */
+.cash-change-box {
+  border: 1px solid #28a745;
+  background: #eafaf1;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 10px 0;
+}
+
+.cash-change-box.hidden {
+  display: none;
+}
+
+.cash-change-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.cash-change-row label {
+  font-weight: 600;
+  color: #155724;
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
+.cash-change-row input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #a3cfbb;
+  border-radius: 5px;
+  font-size: 1em;
+  margin-bottom: 0 !important;
+}
+
+.cash-change-result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  color: #155724;
+  font-size: 1.05em;
+  padding-top: 6px;
+  border-top: 1px dashed #a3cfbb;
+}
+
+#shop-cash-change {
+  font-size: 1.2em;
+  color: #0f3460;
+}
+
+#shop-cash-change.negative {
+  color: #dc3545;
+}
