@@ -69,7 +69,7 @@ router.get('/:id', async (req, res) => {
 // CREATE new shop order
 // ============================================
 router.post('/', async (req, res) => {
-  const { items, total_price, customer_name, notes } = req.body;
+  const { items, total_price, customer_name, notes, payment_method } = req.body;
 
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'items array is required' });
@@ -78,12 +78,14 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'valid total_price is required' });
   }
 
+  const method = payment_method === 'card' ? 'card' : 'cash';
+
   try {
     const result = await db.pool.query(
-      `INSERT INTO shop_orders (items, total_price, customer_name, notes)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO shop_orders (items, total_price, customer_name, notes, payment_method)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [JSON.stringify(items), total_price, customer_name || null, notes || null]
+      [JSON.stringify(items), total_price, customer_name || null, notes || null, method]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -96,7 +98,9 @@ router.post('/', async (req, res) => {
 // UPDATE shop order
 // ============================================
 router.put('/:id', async (req, res) => {
-  const { items, total_price, customer_name, notes, status } = req.body;
+  const { items, total_price, customer_name, notes, status, payment_method } = req.body;
+
+  const method = payment_method === 'card' ? 'card' : 'cash';
 
   try {
     const result = await db.pool.query(
@@ -105,8 +109,9 @@ router.put('/:id', async (req, res) => {
            total_price = $2,
            customer_name = $3,
            notes = $4,
-           status = COALESCE($5, status)
-       WHERE id = $6
+           status = COALESCE($5, status),
+           payment_method = $6
+       WHERE id = $7
        RETURNING *`,
       [
         JSON.stringify(items),
@@ -114,6 +119,7 @@ router.put('/:id', async (req, res) => {
         customer_name || null,
         notes || null,
         status || null,
+        method,
         req.params.id,
       ]
     );

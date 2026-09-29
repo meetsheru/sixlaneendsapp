@@ -4,6 +4,19 @@ const ShopOrderModule = (() => {
   let currentOrder = [];
   let editingOrderId = null;
 
+  // ---------- Payment method helpers ----------
+  const getPaymentMethod = () => {
+    const el = document.querySelector('input[name="shop-payment-method"]:checked');
+    return el ? el.value : "cash";
+  };
+
+  const setPaymentMethod = (method) => {
+    const radio = document.querySelector(
+      `input[name="shop-payment-method"][value="${method}"]`
+    );
+    if (radio) radio.checked = true;
+  };
+
   // ---------- Load order into cart for editing ----------
   const loadOrderForEdit = (id, ordersList) => {
     const source = ordersList || window.__lastShopOrders || [];
@@ -20,6 +33,7 @@ const ShopOrderModule = (() => {
     document.getElementById("shop-customer-name").value =
       order.customer_name || "";
     document.getElementById("shop-notes").value = order.notes || "";
+    setPaymentMethod(order.payment_method || "cash");
     updateUI();
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -27,7 +41,7 @@ const ShopOrderModule = (() => {
   // ---------- Cart operations ----------
   const addItem = (item) => {
     const existing = currentOrder.find(
-      (i) => i.name === item.name && i.price === item.price && !i.isCustom,
+      (i) => i.name === item.name && i.price === item.price && !i.isCustom
     );
     if (existing) existing.qty++;
     else currentOrder.push({ ...item, qty: 1 });
@@ -55,7 +69,7 @@ const ShopOrderModule = (() => {
     }
 
     const existing = currentOrder.find(
-      (i) => i.isCustom && i.name === name && i.price === price,
+      (i) => i.isCustom && i.name === name && i.price === price
     );
     if (existing) {
       existing.qty += qty;
@@ -73,7 +87,6 @@ const ShopOrderModule = (() => {
     priceEl.value = "";
     qtyEl.value = "1";
     nameEl.focus();
-
     updateUI();
   };
 
@@ -90,6 +103,7 @@ const ShopOrderModule = (() => {
       editingOrderId = null;
       document.getElementById("shop-customer-name").value = "";
       document.getElementById("shop-notes").value = "";
+      setPaymentMethod("cash");
       updateUI();
     }
   };
@@ -145,13 +159,16 @@ const ShopOrderModule = (() => {
 
     const customer_name =
       document.getElementById("shop-customer-name")?.value.trim() || null;
-    const notes = document.getElementById("shop-notes")?.value.trim() || null;
+    const notes =
+      document.getElementById("shop-notes")?.value.trim() || null;
+    const payment_method = getPaymentMethod();
 
     const payload = {
       items: currentOrder,
       total_price: getTotal(),
       customer_name,
       notes,
+      payment_method,
     };
 
     try {
@@ -174,17 +191,19 @@ const ShopOrderModule = (() => {
 
       const saved = await response.json();
       const txn = saved?.transaction_id || `#${saved?.id}`;
+      const methodLabel = saved?.payment_method === "card" ? "💳 Card" : "💵 Cash";
 
       alert(
         editingOrderId
-          ? `Order updated!\nTransaction: ${txn}`
-          : `Order placed!\nTransaction: ${txn}`,
+          ? `Order updated!\nTransaction: ${txn}\nPayment: ${methodLabel}`
+          : `Order placed!\nTransaction: ${txn}\nPayment: ${methodLabel}`
       );
 
       currentOrder = [];
       editingOrderId = null;
       document.getElementById("shop-customer-name").value = "";
       document.getElementById("shop-notes").value = "";
+      setPaymentMethod("cash");
       updateUI();
 
       await loadHistory();
@@ -224,9 +243,15 @@ const ShopOrderModule = (() => {
           : JSON.parse(order.items);
         const summary = items.map((i) => `${i.qty}× ${i.name}`).join(", ");
 
+        const payMethod = order.payment_method || "cash";
+        const payBadge =
+          payMethod === "card"
+            ? '<span class="payment-badge card">💳 Card</span>'
+            : '<span class="payment-badge cash">💵 Cash</span>';
+
         div.innerHTML = `
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <strong style="font-family:monospace;color:#0f3460;">${order.transaction_id || "#" + order.id}</strong>
+            <strong style="font-family:monospace;color:#0f3460;">${order.transaction_id || "#" + order.id}${payBadge}</strong>
             <span style="font-size:0.8em;color:#888;">${date}</span>
           </div>
           <div style="font-size:0.9em;margin:5px 0;">${summary}</div>
@@ -245,18 +270,7 @@ const ShopOrderModule = (() => {
       historyList.querySelectorAll("[data-edit]").forEach((btn) => {
         btn.onclick = () => {
           const id = parseInt(btn.dataset.edit);
-          const order = orders.find((o) => o.id === id);
-          if (!order) return;
-          const parsed = Array.isArray(order.items)
-            ? order.items
-            : JSON.parse(order.items);
-          currentOrder = parsed.map((i) => ({ ...i, qty: i.qty || 1 }));
-          editingOrderId = id;
-          document.getElementById("shop-customer-name").value =
-            order.customer_name || "";
-          document.getElementById("shop-notes").value = order.notes || "";
-          updateUI();
-          window.scrollTo({ top: 0, behavior: "smooth" });
+          loadOrderForEdit(id, orders);
         };
       });
 
