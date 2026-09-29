@@ -26,7 +26,18 @@ router.get('/menu/items', async (req, res) => {
       `SELECT category, name, price
        FROM shop_menu_items
        WHERE is_active = TRUE
-       ORDER BY category, sort_order, name`
+       ORDER BY
+         CASE category
+           WHEN 'MAINS'     THEN 1
+           WHEN 'SIDES'     THEN 2
+           WHEN 'BUTTY'     THEN 3
+           WHEN 'KIDS MENU' THEN 4
+           WHEN 'DRINKS'    THEN 5
+           WHEN 'BURGERS'   THEN 6
+           ELSE 99
+         END,
+         sort_order,
+         name`
     );
     res.json(result.rows);
   } catch (err) {
