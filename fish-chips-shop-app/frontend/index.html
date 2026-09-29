@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fish & Chips Order System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="container">
+        <!-- Left: Menu -->
+        <div class="menu-section">
+            <header>
+                <h1>Menu</h1>
+                <p>Click items to add to order</p>
+            </header>
+            <div class="menu-grid" id="menu-grid"></div>
+        </div>
+
+        <!-- Right: Order & History -->
+        <div class="order-section">
+            <div class="order-card">
+                <h2>Current Order</h2>
+                <ul id="order-list">
+                    <li class="empty-msg">No items selected</li>
+                </ul>
+                <div class="total-row">
+                    <span>Total:</span>
+                    <span id="total-price">£0.00</span>
+                </div>
+                <div class="actions">
+                    <button id="clear-btn" class="btn secondary">Clear</button>
+                    <button id="save-btn" class="btn primary">Place Order</button>
+                </div>
+            </div>
+
+            <div class="history-card">
+                <h3>Order History</h3>
+                <div id="history-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load JS Modules in Order -->
+    <script src="js/api.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/order.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
