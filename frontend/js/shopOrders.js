@@ -1,12 +1,17 @@
 const ShopOrderModule = (() => {
-  const API_URL = "http://localhost:3000/api/shop-orders";
+  const SHOP_ORDERS_API = "http://localhost:3000/api/shop-orders";
 
   let currentOrder = [];
   let editingOrderId = null;
 
-  const loadOrderForEdit = (id) => {
-    const order = window.__lastShopOrders?.find((o) => o.id === id);
-    if (!order) return;
+  // ---------- Load order into cart for editing ----------
+  const loadOrderForEdit = (id, ordersList) => {
+    const source = ordersList || window.__lastShopOrders || [];
+    const order = source.find((o) => o.id === id);
+    if (!order) {
+      console.warn("Order not found for edit:", id);
+      return;
+    }
     const items = Array.isArray(order.items)
       ? order.items
       : JSON.parse(order.items);
@@ -16,12 +21,59 @@ const ShopOrderModule = (() => {
       order.customer_name || "";
     document.getElementById("shop-notes").value = order.notes || "";
     updateUI();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // ---------- Cart operations ----------
   const addItem = (item) => {
-    const existing = currentOrder.find((i) => i.name === item.name);
+    const existing = currentOrder.find(
+      (i) => i.name === item.name && i.price === item.price && !i.isCustom,
+    );
     if (existing) existing.qty++;
     else currentOrder.push({ ...item, qty: 1 });
+    updateUI();
+  };
+
+  const addCustomItem = () => {
+    const nameEl = document.getElementById("shop-custom-item-name");
+    const priceEl = document.getElementById("shop-custom-item-price");
+    const qtyEl = document.getElementById("shop-custom-item-qty");
+
+    const name = (nameEl.value || "").trim();
+    const price = parseFloat(priceEl.value);
+    const qty = parseInt(qtyEl.value) || 1;
+
+    if (!name) {
+      alert("Please enter an item name.");
+      nameEl.focus();
+      return;
+    }
+    if (isNaN(price) || price < 0) {
+      alert("Please enter a valid price.");
+      priceEl.focus();
+      return;
+    }
+
+    const existing = currentOrder.find(
+      (i) => i.isCustom && i.name === name && i.price === price,
+    );
+    if (existing) {
+      existing.qty += qty;
+    } else {
+      currentOrder.push({
+        name,
+        price,
+        qty,
+        category: "CUSTOM",
+        isCustom: true,
+      });
+    }
+
+    nameEl.value = "";
+    priceEl.value = "";
+    qtyEl.value = "1";
+    nameEl.focus();
+
     updateUI();
   };
 
@@ -45,6 +97,7 @@ const ShopOrderModule = (() => {
   const getTotal = () =>
     currentOrder.reduce((sum, i) => sum + i.price * i.qty, 0);
 
+  // ---------- UI ----------
   const updateUI = () => {
     const list = document.getElementById("shop-order-list");
     const totalEl = document.getElementById("shop-total-price");
@@ -60,9 +113,12 @@ const ShopOrderModule = (() => {
     } else {
       currentOrder.forEach((item, index) => {
         const li = document.createElement("li");
+        const badge = item.isCustom
+          ? ' <span class="custom-badge">CUSTOM</span>'
+          : "";
         li.innerHTML = `
           <div>
-            <div>${item.name}</div>
+            <div>${item.name}${badge}</div>
             <div style="font-size:0.8em;color:#666">£${item.price.toFixed(2)}</div>
           </div>
           <div class="item-controls">
@@ -80,6 +136,7 @@ const ShopOrderModule = (() => {
     if (totalEl) totalEl.innerText = `£${getTotal().toFixed(2)}`;
   };
 
+  // ---------- Save / Update ----------
   const saveOrder = async () => {
     if (!currentOrder.length) {
       alert("Order is empty");
@@ -100,13 +157,13 @@ const ShopOrderModule = (() => {
     try {
       let response;
       if (editingOrderId) {
-        response = await fetch(`${API_URL}/${editingOrderId}`, {
+        response = await fetch(`${SHOP_ORDERS_API}/${editingOrderId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
       } else {
-        response = await fetch(API_URL, {
+        response = await fetch(SHOP_ORDERS_API, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -115,27 +172,42 @@ const ShopOrderModule = (() => {
 
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-      alert(editingOrderId ? "Order updated!" : "Order placed!");
+      const saved = await response.json();
+      const txn = saved?.transaction_id || `#${saved?.id}`;
+
+      alert(
+        editingOrderId
+          ? `Order updated!\nTransaction: ${txn}`
+          : `Order placed!\nTransaction: ${txn}`,
+      );
+
       currentOrder = [];
       editingOrderId = null;
       document.getElementById("shop-customer-name").value = "";
       document.getElementById("shop-notes").value = "";
       updateUI();
-      const orders = await res.json();
-      window.__lastShopOrders = orders;
+
+      await loadHistory();
+
+      if (typeof ShopSalesModule !== "undefined" && ShopSalesModule.load) {
+        ShopSalesModule.load();
+      }
     } catch (err) {
       console.error("Save order error:", err);
       alert("Error saving order. Check console.");
     }
   };
 
+  // ---------- History panel ----------
   const loadHistory = async () => {
     const historyList = document.getElementById("shop-history-list");
     if (!historyList) return;
 
     try {
-      const res = await fetch(API_URL);
+      const res = await fetch(SHOP_ORDERS_API);
       const orders = await res.json();
+
+      window.__lastShopOrders = orders;
 
       historyList.innerHTML = "";
       if (!orders.length) {
@@ -153,8 +225,8 @@ const ShopOrderModule = (() => {
         const summary = items.map((i) => `${i.qty}× ${i.name}`).join(", ");
 
         div.innerHTML = `
-          <div style="display:flex;justify-content:space-between;">
-            <strong>#${order.id}</strong>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <strong style="font-family:monospace;color:#0f3460;">${order.transaction_id || "#" + order.id}</strong>
             <span style="font-size:0.8em;color:#888;">${date}</span>
           </div>
           <div style="font-size:0.9em;margin:5px 0;">${summary}</div>
@@ -175,9 +247,10 @@ const ShopOrderModule = (() => {
           const id = parseInt(btn.dataset.edit);
           const order = orders.find((o) => o.id === id);
           if (!order) return;
-          currentOrder = Array.isArray(order.items)
+          const parsed = Array.isArray(order.items)
             ? order.items
             : JSON.parse(order.items);
+          currentOrder = parsed.map((i) => ({ ...i, qty: i.qty || 1 }));
           editingOrderId = id;
           document.getElementById("shop-customer-name").value =
             order.customer_name || "";
@@ -192,8 +265,14 @@ const ShopOrderModule = (() => {
           const id = parseInt(btn.dataset.delete);
           if (!confirm(`Delete order #${id}?`)) return;
           try {
-            await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-            loadHistory();
+            await fetch(`${SHOP_ORDERS_API}/${id}`, { method: "DELETE" });
+            await loadHistory();
+            if (
+              typeof ShopSalesModule !== "undefined" &&
+              ShopSalesModule.load
+            ) {
+              ShopSalesModule.load();
+            }
           } catch (err) {
             console.error("Delete error:", err);
           }
@@ -206,6 +285,7 @@ const ShopOrderModule = (() => {
     }
   };
 
+  // ---------- Init ----------
   const init = () => {
     document
       .getElementById("shop-order-list")
@@ -220,9 +300,29 @@ const ShopOrderModule = (() => {
     document
       .getElementById("shop-clear-btn")
       ?.addEventListener("click", clearOrder);
+
     document
       .getElementById("shop-save-btn")
       ?.addEventListener("click", saveOrder);
+
+    // Custom item
+    document
+      .getElementById("shop-add-custom-btn")
+      ?.addEventListener("click", addCustomItem);
+
+    // Enter key in any custom field triggers Add
+    [
+      "shop-custom-item-name",
+      "shop-custom-item-price",
+      "shop-custom-item-qty",
+    ].forEach((id) => {
+      document.getElementById(id)?.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          addCustomItem();
+        }
+      });
+    });
 
     loadHistory();
   };

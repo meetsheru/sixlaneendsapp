@@ -1,10 +1,10 @@
 const ShopMenuModule = (() => {
-  const API_URL = 'http://localhost:3000/api/shop-orders/menu/items';
+  const SHOP_MENU_API = 'http://localhost:3000/api/shop-orders/menu/items';
   let menuData = [];
 
   const fetchMenu = async () => {
     try {
-      const res = await fetch(API_URL);
+      const res = await fetch(SHOP_MENU_API);
       menuData = await res.json();
     } catch (err) {
       console.error('Failed to load menu:', err);

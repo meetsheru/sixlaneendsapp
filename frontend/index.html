@@ -6,7 +6,6 @@
     <title>Takeaway Earnings Tracker</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="css/shop-orders.css" />
-    <!-- ADD THIS -->
   </head>
   <body>
     <div class="container">
@@ -32,12 +31,11 @@
       </div>
 
       <!-- Tab Navigation -->
-
       <div class="tab-navigation">
-        <button class="tab-btn active" data-tab="earnings">💰 Earnings</button>
+        <button class="tab-btn" data-tab="earnings">💰 Earnings</button>
         <button class="tab-btn" data-tab="expenses">💸 Expenses</button>
         <button class="tab-btn" data-tab="inventory">📦 Inventory</button>
-        <button class="tab-btn" data-tab="shop-orders">🐟 Shop Orders</button>
+        <button class="tab-btn active" data-tab="shop-orders">🐟 Shop Orders</button>
         <button class="tab-btn" data-tab="history">📜 History</button>
         <button class="tab-btn" data-tab="statistics">📊 Statistics</button>
         <button class="tab-btn" data-tab="shop-sales">🧾 Shop Sales</button>
@@ -45,7 +43,7 @@
 
       <main>
         <!-- TAB 1: Earnings -->
-        <div id="tab-earnings" class="tab-content active">
+        <div id="tab-earnings" class="tab-content">
           <section class="form-section">
             <h2>Add / Update Earnings</h2>
             <form id="earningForm">
@@ -554,7 +552,7 @@
         </div>
 
         <!-- TAB 6: Shop Orders -->
-        <div id="tab-shop-orders" class="tab-content">
+        <div id="tab-shop-orders" class="tab-content active">
           <div class="shop-container">
             <div class="menu-section">
               <header>
@@ -580,6 +578,40 @@
                   id="shop-notes"
                   placeholder="Notes (optional)"
                 />
+
+                <!-- Custom item entry -->
+                <div class="custom-item-box">
+                  <div class="custom-item-title">➕ Add Custom Item</div>
+                  <div class="custom-item-row">
+                    <input
+                      type="text"
+                      id="shop-custom-item-name"
+                      placeholder="Item name (e.g. Extra Gravy)"
+                    />
+                  </div>
+                  <div class="custom-item-row">
+                    <input
+                      type="number"
+                      id="shop-custom-item-price"
+                      placeholder="Price £"
+                      step="0.01"
+                      min="0"
+                    />
+                    <input
+                      type="number"
+                      id="shop-custom-item-qty"
+                      placeholder="Qty"
+                      min="1"
+                      step="1"
+                      value="1"
+                    />
+                    <button
+                      type="button"
+                      id="shop-add-custom-btn"
+                      class="custom-item-add-btn"
+                    >Add</button>
+                  </div>
+                </div>
 
                 <ul id="shop-order-list">
                   <li class="empty-msg">No items selected</li>
@@ -609,7 +641,8 @@
             </div>
           </div>
         </div>
-                <!-- TAB 7: Shop Sales History -->
+
+        <!-- TAB 7: Shop Sales History -->
         <div id="tab-shop-sales" class="tab-content">
           <section class="stats-section">
             <h2>📊 Shop Sales Summary</h2>
@@ -637,6 +670,43 @@
             </div>
           </section>
 
+          <!-- Date range filter -->
+          <section class="stats-section">
+            <h2>🔍 Date Range Filter</h2>
+            <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+              <div>
+                <label for="breakdownFromDate" style="font-weight: 600; margin-right: 6px;">From:</label>
+                <input type="date" id="breakdownFromDate" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd;" />
+              </div>
+              <div>
+                <label for="breakdownToDate" style="font-weight: 600; margin-right: 6px;">To:</label>
+                <input type="date" id="breakdownToDate" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd;" />
+              </div>
+              <button id="breakdownClearBtn" style="background: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">Clear</button>
+            </div>
+          </section>
+
+          <section class="stats-section">
+            <h2>📆 Daily Breakdown</h2>
+            <div id="shopDailyBreakdown">
+              <p class="loading">Loading daily sales...</p>
+            </div>
+          </section>
+
+          <section class="stats-section">
+            <h2>🗓️ Weekly Breakdown</h2>
+            <div id="shopWeeklyBreakdown">
+              <p class="loading">Loading weekly sales...</p>
+            </div>
+          </section>
+
+          <section class="stats-section">
+            <h2>📅 Monthly Breakdown</h2>
+            <div id="shopMonthlyBreakdown">
+              <p class="loading">Loading monthly sales...</p>
+            </div>
+          </section>
+
           <section class="history-section">
             <h2>🧾 All Shop Orders <small style="font-weight: normal; color: #666; font-size: 0.7em;">(latest first)</small></h2>
 
@@ -658,9 +728,7 @@
         </div>
       </main>
 
-      <!-- ============================================ -->
-      <!-- EDIT PURCHASE MODAL - VIEW MODE FIRST -->
-      <!-- ============================================ -->
+      <!-- EDIT PURCHASE MODAL -->
       <div
         id="editPurchaseModal"
         style="
@@ -705,7 +773,6 @@
             &times;
           </button>
 
-          <!-- Header with Title and Edit Button -->
           <div
             style="
               display: flex;
@@ -737,9 +804,6 @@
             </button>
           </div>
 
-          <!-- ============================================ -->
-          <!-- READ-ONLY VIEW MODE (SHOWN FIRST) -->
-          <!-- ============================================ -->
           <div id="editPurchaseViewMode" style="display: block">
             <div
               style="
@@ -812,9 +876,6 @@
             </div>
           </div>
 
-          <!-- ============================================ -->
-          <!-- EDITABLE MODE (HIDDEN BY DEFAULT) -->
-          <!-- ============================================ -->
           <div id="editPurchaseEditMode" style="display: none">
             <form id="editPurchaseForm">
               <input type="hidden" id="editPurchaseId" />

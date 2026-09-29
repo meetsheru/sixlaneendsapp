@@ -5,7 +5,7 @@
 console.log("🔴 SCRIPT.JS IS LOADED!");
 
 // API Configuration
-const API_URL = "http://localhost:3000/api";
+// const API_URL = "http://localhost:3000/api";
 
 // ============================================
 // LOAD ALL MODULES

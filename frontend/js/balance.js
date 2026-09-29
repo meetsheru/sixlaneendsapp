@@ -27,4 +27,3 @@ async function loadBalance() {
 window.BalanceModule = {
     load: loadBalance
 };
-EOF
