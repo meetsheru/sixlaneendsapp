@@ -8,41 +8,43 @@
     <link rel="stylesheet" href="css/shop-orders.css" />
   </head>
   <body>
+    <!-- ============================================ -->
+    <!-- TOP NAVIGATION BAR WITH DROPDOWN MENU        -->
+    <!-- ============================================ -->
+    <nav class="topnav">
+      <div class="topnav-brand">
+        <span class="topnav-logo">🐟</span>
+        <span class="topnav-title">Fish Shop</span>
+      </div>
+
+      <div class="topnav-menu-wrap">
+        <button id="nav-menu-btn" class="nav-menu-btn" type="button">
+          <span class="nav-menu-icon">☰</span>
+          <span id="nav-current-label">🐟 Shop Orders</span>
+          <span class="nav-menu-caret">▾</span>
+        </button>
+
+        <div id="nav-dropdown" class="nav-dropdown hidden">
+          <button class="nav-item" data-tab="shop-orders">🐟 Shop Orders</button>
+          <button class="nav-item" data-tab="shop-sales">🧾 Shop Sales</button>
+          <div class="nav-separator"></div>
+          <button class="nav-item" data-tab="earnings">💰 Earnings</button>
+          <button class="nav-item" data-tab="expenses">💸 Expenses</button>
+          <button class="nav-item" data-tab="inventory">📦 Inventory</button>
+          <div class="nav-separator"></div>
+          <button class="nav-item" data-tab="history">📜 History</button>
+          <button class="nav-item" data-tab="statistics">📊 Statistics</button>
+        </div>
+      </div>
+
+      <div class="topnav-spacer"></div>
+    </nav>
+
     <div class="container">
-      <header>
-        <h1>📊 Takeaway Earnings Tracker</h1>
-        <p class="subtitle">Track your earnings, expenses, and inventory</p>
-      </header>
-
-      <!-- Balance Summary -->
-      <div class="balance-summary">
-        <div class="balance-card total-earnings">
-          <div class="balance-label">💰 Total Earnings</div>
-          <div class="balance-value" id="totalEarningsBalance">£0.00</div>
-        </div>
-        <div class="balance-card total-expenses">
-          <div class="balance-label">💸 Total Expenses</div>
-          <div class="balance-value" id="totalExpensesBalance">£0.00</div>
-        </div>
-        <div class="balance-card available-balance" id="balanceCard">
-          <div class="balance-label">✅ Available Balance</div>
-          <div class="balance-value" id="availableBalance">£0.00</div>
-        </div>
-      </div>
-
-      <!-- Tab Navigation -->
-      <div class="tab-navigation">
-        <button class="tab-btn" data-tab="earnings">💰 Earnings</button>
-        <button class="tab-btn" data-tab="expenses">💸 Expenses</button>
-        <button class="tab-btn" data-tab="inventory">📦 Inventory</button>
-        <button class="tab-btn active" data-tab="shop-orders">🐟 Shop Orders</button>
-        <button class="tab-btn" data-tab="shop-sales">🧾 Shop Sales</button>
-        <button class="tab-btn" data-tab="history">📜 History</button>
-        <button class="tab-btn" data-tab="statistics">📊 Statistics</button>
-      </div>
-
       <main>
-        <!-- TAB 1: Earnings -->
+        <!-- ============================================ -->
+        <!-- TAB 1: EARNINGS                               -->
+        <!-- ============================================ -->
         <div id="tab-earnings" class="tab-content">
           <section class="form-section">
             <h2>Add / Update Earnings</h2>
@@ -53,28 +55,15 @@
               </div>
               <div class="form-group">
                 <label for="amountInput">Earnings (£)</label>
-                <input
-                  type="number"
-                  id="amountInput"
-                  step="0.01"
-                  min="0"
-                  placeholder="0.00"
-                  required
-                />
+                <input type="number" id="amountInput" step="0.01" min="0" placeholder="0.00" required />
               </div>
               <div class="form-group">
                 <label for="descriptionInput">Description (Optional)</label>
-                <input
-                  type="text"
-                  id="descriptionInput"
-                  placeholder="e.g., Lunch sales"
-                />
+                <input type="text" id="descriptionInput" placeholder="e.g., Lunch sales" />
               </div>
               <div class="form-actions">
                 <button type="submit" id="saveBtn">💾 Save Earnings</button>
-                <button type="button" id="deleteBtn" class="delete-btn">
-                  🗑️ Delete Entry
-                </button>
+                <button type="button" id="deleteBtn" class="delete-btn">🗑️ Delete Entry</button>
               </div>
               <div id="messageContainer"></div>
             </form>
@@ -93,20 +82,24 @@
           </section>
         </div>
 
-        <!-- TAB 2: Expenses -->
+        <!-- ============================================ -->
+        <!-- TAB 2: EXPENSES                               -->
+        <!-- ============================================ -->
         <div id="tab-expenses" class="tab-content">
+          <!-- Available to Spend Banner -->
+          <div id="availableToSpendCard" class="available-to-spend-card">
+            <div class="available-to-spend-icon">💰</div>
+            <div class="available-to-spend-text">
+              <div class="available-to-spend-label">Available to Spend</div>
+              <div class="available-to-spend-value" id="availableToSpendValue">£0.00</div>
+            </div>
+          </div>
+
           <section class="form-section">
             <h2>💸 Add Expense / Transaction</h2>
             <div
               id="expenseBalanceWarning"
-              style="
-                display: none;
-                background: #fff3cd;
-                padding: 15px;
-                border-radius: 8px;
-                margin-bottom: 15px;
-                border: 1px solid #ffc107;
-              "
+              style="display: none; background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffc107;"
             >
               <strong>⚠️ Low Balance:</strong>
               <span id="expenseBalanceWarningText"></span>
@@ -118,32 +111,18 @@
               </div>
               <div class="form-group">
                 <label for="expenseAmountInput">Amount (£)</label>
-                <input
-                  type="number"
-                  id="expenseAmountInput"
-                  step="0.01"
-                  min="0.01"
-                  placeholder="0.00"
-                  required
-                />
-                <small style="color: #666; display: block; margin-top: 5px"
-                  >Available balance:
-                  <strong id="expenseAvailableBalance">£0.00</strong></small
-                >
+                <input type="number" id="expenseAmountInput" step="0.01" min="0.01" placeholder="0.00" required />
+                <small style="color: #666; display: block; margin-top: 5px">
+                  Available balance:
+                  <strong id="expenseAvailableBalance">£0.00</strong>
+                </small>
               </div>
               <div class="form-group">
                 <label for="expenseReasonInput">Reason for Expense</label>
-                <input
-                  type="text"
-                  id="expenseReasonInput"
-                  placeholder="e.g., Staff lunch, Ingredients, Utilities"
-                  required
-                />
+                <input type="text" id="expenseReasonInput" placeholder="e.g., Staff lunch, Ingredients, Utilities" required />
               </div>
               <div class="form-actions">
-                <button type="submit" id="expenseSaveBtn">
-                  💸 Add Expense
-                </button>
+                <button type="submit" id="expenseSaveBtn">💸 Add Expense</button>
               </div>
               <div id="expenseMessageContainer"></div>
             </form>
@@ -162,7 +141,9 @@
           </section>
         </div>
 
-        <!-- TAB 3: Inventory -->
+        <!-- ============================================ -->
+        <!-- TAB 3: INVENTORY                              -->
+        <!-- ============================================ -->
         <div id="tab-inventory" class="tab-content">
           <section class="form-section">
             <h2>📦 Add Inventory Purchase</h2>
@@ -173,23 +154,12 @@
               </div>
               <div class="form-group">
                 <label for="inventoryItemInput">Item Name</label>
-                <input
-                  type="text"
-                  id="inventoryItemInput"
-                  placeholder="e.g., Chicken Breast"
-                  required
-                />
+                <input type="text" id="inventoryItemInput" placeholder="e.g., Chicken Breast" required />
               </div>
               <div class="form-row">
                 <div class="form-group" style="flex: 1">
                   <label for="inventoryQuantityInput">Quantity</label>
-                  <input
-                    type="number"
-                    id="inventoryQuantityInput"
-                    step="0.01"
-                    placeholder="0"
-                    required
-                  />
+                  <input type="number" id="inventoryQuantityInput" step="0.01" placeholder="0" required />
                 </div>
                 <div class="form-group" style="flex: 1">
                   <label for="inventoryUnitInput">Unit</label>
@@ -207,32 +177,16 @@
               <div class="form-row">
                 <div class="form-group" style="flex: 1">
                   <label for="inventoryCostPerUnit">Cost Per Unit (£)</label>
-                  <input
-                    type="number"
-                    id="inventoryCostPerUnit"
-                    step="0.01"
-                    placeholder="0.00"
-                    required
-                  />
+                  <input type="number" id="inventoryCostPerUnit" step="0.01" placeholder="0.00" required />
                 </div>
                 <div class="form-group" style="flex: 1">
                   <label for="inventoryTotalCost">Total Cost (£)</label>
-                  <input
-                    type="number"
-                    id="inventoryTotalCost"
-                    step="0.01"
-                    placeholder="0.00"
-                    required
-                  />
+                  <input type="number" id="inventoryTotalCost" step="0.01" placeholder="0.00" required />
                 </div>
               </div>
               <div class="form-group">
                 <label for="inventorySupplierInput">Supplier (Optional)</label>
-                <input
-                  type="text"
-                  id="inventorySupplierInput"
-                  placeholder="e.g., Wholesale Market"
-                />
+                <input type="text" id="inventorySupplierInput" placeholder="e.g., Wholesale Market" />
               </div>
               <div class="form-group">
                 <label for="inventoryCategoryInput">Category</label>
@@ -249,29 +203,17 @@
               </div>
               <div class="form-group">
                 <label for="inventoryNotesInput">Notes (Optional)</label>
-                <input
-                  type="text"
-                  id="inventoryNotesInput"
-                  placeholder="Additional notes"
-                />
+                <input type="text" id="inventoryNotesInput" placeholder="Additional notes" />
               </div>
               <div class="form-group">
-                <label for="inventoryReceiptInput"
-                  >Upload Receipt (Optional)</label
-                >
-                <input
-                  type="file"
-                  id="inventoryReceiptInput"
-                  accept="image/*,.pdf"
-                />
-                <small style="color: #666; display: block; margin-top: 5px"
-                  >Supported formats: JPG, PNG, GIF, WEBP, PDF (Max 5MB)</small
-                >
+                <label for="inventoryReceiptInput">Upload Receipt (Optional)</label>
+                <input type="file" id="inventoryReceiptInput" accept="image/*,.pdf" />
+                <small style="color: #666; display: block; margin-top: 5px">
+                  Supported formats: JPG, PNG, GIF, WEBP, PDF (Max 5MB)
+                </small>
               </div>
               <div class="form-actions">
-                <button type="submit" id="inventorySaveBtn">
-                  📦 Add Purchase
-                </button>
+                <button type="submit" id="inventorySaveBtn">📦 Add Purchase</button>
               </div>
               <div id="inventoryMessageContainer"></div>
             </form>
@@ -291,36 +233,20 @@
               </div>
               <div class="stock-summary-card">
                 <div class="stock-summary-label">💰 Total Value</div>
-                <div class="stock-summary-value" id="totalStockValue">
-                  £0.00
-                </div>
+                <div class="stock-summary-value" id="totalStockValue">£0.00</div>
               </div>
               <div class="stock-summary-card">
                 <div class="stock-summary-label">📂 Categories</div>
-                <div class="stock-summary-value" id="totalStockCategories">
-                  0
-                </div>
+                <div class="stock-summary-value" id="totalStockCategories">0</div>
               </div>
               <div class="stock-summary-card">
                 <div class="stock-summary-label">🔄 Last Updated</div>
-                <div
-                  class="stock-summary-value"
-                  id="stockLastUpdated"
-                  style="font-size: 1rem"
-                >
-                  -
-                </div>
+                <div class="stock-summary-value" id="stockLastUpdated" style="font-size: 1rem">-</div>
               </div>
             </div>
 
             <div style="overflow-x: auto">
-              <table
-                style="
-                  width: 100%;
-                  border-collapse: collapse;
-                  font-size: 0.9rem;
-                "
-              >
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
                 <thead>
                   <tr style="background: #667eea; color: white">
                     <th style="padding: 10px; text-align: left">Item</th>
@@ -329,42 +255,24 @@
                     <th style="padding: 10px; text-align: left">Cost/Unit</th>
                     <th style="padding: 10px; text-align: left">Total Value</th>
                     <th style="padding: 10px; text-align: left">Category</th>
-                    <th style="padding: 10px; text-align: left">
-                      Last Updated
-                    </th>
+                    <th style="padding: 10px; text-align: left">Last Updated</th>
                     <th style="padding: 10px; text-align: left">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="stockList">
                   <tr>
-                    <td colspan="8" style="text-align: center; padding: 20px">
-                      Loading stock...
-                    </td>
+                    <td colspan="8" style="text-align: center; padding: 20px">Loading stock...</td>
                   </tr>
                 </tbody>
                 <tfoot id="stockFooter" style="display: none">
                   <tr style="background: #e9ecef; font-weight: bold">
                     <td style="padding: 10px">📊 TOTAL</td>
-                    <td
-                      style="padding: 10px; color: #6f42c1"
-                      id="footerTotalQuantity"
-                    >
-                      0
-                    </td>
+                    <td style="padding: 10px; color: #6f42c1" id="footerTotalQuantity">0</td>
                     <td style="padding: 10px">-</td>
                     <td style="padding: 10px">-</td>
-                    <td
-                      style="padding: 10px; color: #28a745"
-                      id="footerTotalValue"
-                    >
-                      £0.00
-                    </td>
-                    <td style="padding: 10px" id="footerTotalCategories">
-                      0 categories
-                    </td>
-                    <td style="padding: 10px" colspan="2" id="footerTotalItems">
-                      0 items
-                    </td>
+                    <td style="padding: 10px; color: #28a745" id="footerTotalValue">£0.00</td>
+                    <td style="padding: 10px" id="footerTotalCategories">0 categories</td>
+                    <td style="padding: 10px" colspan="2" id="footerTotalItems">0 items</td>
                   </tr>
                 </tfoot>
               </table>
@@ -397,85 +305,30 @@
           </section>
         </div>
 
-        <!-- TAB 4: History -->
+        <!-- ============================================ -->
+        <!-- TAB 4: HISTORY                                -->
+        <!-- ============================================ -->
         <div id="tab-history" class="tab-content">
           <section class="history-section">
             <h2>📜 Audit History</h2>
             <div class="history-controls">
               <div style="display: flex; gap: 10px; flex-wrap: wrap">
-                <button
-                  id="refreshAuditBtn"
-                  style="
-                    background: #28a745;
-                    color: white;
-                    padding: 8px 16px;
-                    border: none;
-                    border-radius: 6px;
-                    cursor: pointer;
-                  "
-                >
-                  🔄 Refresh
-                </button>
-                <button
-                  id="clearAuditFilterBtn"
-                  style="
-                    background: #6c757d;
-                    color: white;
-                    padding: 8px 16px;
-                    border: none;
-                    border-radius: 6px;
-                    cursor: pointer;
-                  "
-                >
-                  Clear Filter
-                </button>
+                <button id="refreshAuditBtn" style="background: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">🔄 Refresh</button>
+                <button id="clearAuditFilterBtn" style="background: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">Clear Filter</button>
               </div>
-              <div
-                style="
-                  display: flex;
-                  gap: 10px;
-                  align-items: center;
-                  flex-wrap: wrap;
-                "
-              >
+              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap">
                 <label for="auditFilterAction">Action:</label>
-                <select
-                  id="auditFilterAction"
-                  style="
-                    padding: 6px 12px;
-                    border-radius: 6px;
-                    border: 1px solid #ddd;
-                  "
-                >
+                <select id="auditFilterAction" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd;">
                   <option value="all">All Actions</option>
                   <option value="CREATE">➕ Create</option>
                   <option value="UPDATE">✏️ Update</option>
                   <option value="DELETE">🗑️ Delete</option>
                 </select>
-                <label for="auditFilterDate" style="margin-left: 10px"
-                  >Date:</label
-                >
-                <input
-                  type="date"
-                  id="auditFilterDate"
-                  style="
-                    padding: 6px 12px;
-                    border-radius: 6px;
-                    border: 1px solid #ddd;
-                  "
-                />
+                <label for="auditFilterDate" style="margin-left: 10px">Date:</label>
+                <input type="date" id="auditFilterDate" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd;" />
               </div>
             </div>
-            <div
-              id="auditSummary"
-              style="
-                margin: 10px 0;
-                padding: 10px;
-                background: #e9ecef;
-                border-radius: 8px;
-                display: none;
-              "
-            >
+            <div id="auditSummary" style="margin: 10px 0; padding: 10px; background: #e9ecef; border-radius: 8px; display: none;">
               <span id="auditStats"></span>
             </div>
             <div id="auditList">
@@ -484,7 +337,9 @@
           </section>
         </div>
 
-        <!-- TAB 5: Statistics -->
+        <!-- ============================================ -->
+        <!-- TAB 5: STATISTICS                             -->
+        <!-- ============================================ -->
         <div id="tab-statistics" class="tab-content">
           <section class="stats-section">
             <h2>📈 Overall Statistics</h2>
@@ -511,21 +366,11 @@
           <section class="stats-section">
             <h2>📊 Expense Summary</h2>
             <div class="stats-grid">
-              <div
-                class="stat-card"
-                style="
-                  background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
-                "
-              >
+              <div class="stat-card" style="background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);">
                 <div class="stat-label">Total Expenses</div>
                 <div class="stat-value" id="totalExpensesStat">£0.00</div>
               </div>
-              <div
-                class="stat-card"
-                style="
-                  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-                "
-              >
+              <div class="stat-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
                 <div class="stat-label">Net Balance</div>
                 <div class="stat-value" id="netBalanceStat">£0.00</div>
               </div>
@@ -551,13 +396,14 @@
           </section>
         </div>
 
-        <!-- TAB 6: Shop Orders -->
+        <!-- ============================================ -->
+        <!-- TAB 6: SHOP ORDERS (default)                  -->
+        <!-- ============================================ -->
         <div id="tab-shop-orders" class="tab-content active">
           <div class="shop-container">
             <div class="menu-section">
-              <header>
-                <h2>🍟 Menu</h2>
-                <p>Click items to add to order</p>
+              <header class="menu-header">
+                <h2>🍟 Six Lane Ends Menu</h2>
               </header>
               <div class="menu-grid" id="shop-menu-grid">
                 <div class="loading-msg">Loading menu…</div>
@@ -568,19 +414,10 @@
               <div class="order-card">
                 <h2>Current Order</h2>
 
-                <input
-                  type="text"
-                  id="shop-customer-name"
-                  placeholder="Customer name (optional)"
-                />
-                <input
-                  type="text"
-                  id="shop-notes"
-                  placeholder="Notes (optional)"
-                />
+                <input type="text" id="shop-customer-name" placeholder="Customer name (optional)" />
+                <input type="text" id="shop-notes" placeholder="Notes (optional)" />
 
-                                <!-- Payment Method -->
-                                <!-- Payment Method -->
+                <!-- Payment Method -->
                 <div class="payment-method-box">
                   <div class="payment-method-title">💳 Payment Method</div>
                   <label class="payment-method-option">
@@ -593,17 +430,11 @@
                   </label>
                 </div>
 
-                <!-- Cash Change Calculator (only visible for Cash) -->
+                <!-- Cash Change Calculator -->
                 <div id="cash-change-box" class="cash-change-box">
                   <div class="cash-change-row">
                     <label for="shop-cash-tendered">💵 Customer gave:</label>
-                    <input
-                      type="number"
-                      id="shop-cash-tendered"
-                      placeholder="0.00"
-                      step="0.01"
-                      min="0"
-                    />
+                    <input type="number" id="shop-cash-tendered" placeholder="0.00" step="0.01" min="0" />
                   </div>
                   <div class="cash-change-result">
                     <span>🪙 Change due:</span>
@@ -615,35 +446,12 @@
                 <div class="custom-item-box">
                   <div class="custom-item-title">➕ Add Custom Item</div>
                   <div class="custom-item-row">
-                    <input
-                      type="text"
-                      id="shop-custom-item-name"
-                      placeholder="Item name (e.g. Extra Gravy)"
-                    />
+                    <input type="text" id="shop-custom-item-name" placeholder="Item name (e.g. Extra Gravy)" />
                   </div>
                   <div class="custom-item-row">
-                    <input
-                      type="number"
-                      id="shop-custom-item-price"
-                      placeholder="Price £"
-                      step="0.01"
-                      min="0"
-                    />
-                    <input
-                      type="number"
-                      id="shop-custom-item-qty"
-                      placeholder="Qty"
-                      min="1"
-                      step="1"
-                      value="1"
-                    />
-                    <button
-                      type="button"
-                      id="shop-add-custom-btn"
-                      class="custom-item-add-btn"
-                    >
-                      Add
-                    </button>
+                    <input type="number" id="shop-custom-item-price" placeholder="Price £" step="0.01" min="0" />
+                    <input type="number" id="shop-custom-item-qty" placeholder="Qty" min="1" step="1" value="1" />
+                    <button type="button" id="shop-add-custom-btn" class="custom-item-add-btn">Add</button>
                   </div>
                 </div>
 
@@ -657,12 +465,8 @@
                 </div>
 
                 <div class="actions">
-                  <button id="shop-clear-btn" class="btn secondary">
-                    Clear
-                  </button>
-                  <button id="shop-save-btn" class="btn primary">
-                    Place Order
-                  </button>
+                  <button id="shop-clear-btn" class="btn secondary">Clear</button>
+                  <button id="shop-save-btn" class="btn primary">Place Order</button>
                 </div>
               </div>
 
@@ -676,115 +480,60 @@
           </div>
         </div>
 
-        <!-- TAB 7: Shop Sales History -->
+        <!-- ============================================ -->
+        <!-- TAB 7: SHOP SALES                             -->
+        <!-- ============================================ -->
         <div id="tab-shop-sales" class="tab-content">
           <section class="stats-section">
             <h2>📊 Shop Sales Summary</h2>
             <div class="stats-grid">
-              <div
-                class="stat-card"
-                style="
-                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                "
-              >
+              <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <div class="stat-label">Today's Sales</div>
                 <div class="stat-value" id="salesToday">£0.00</div>
               </div>
-              <div
-                class="stat-card"
-                style="
-                  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-                "
-              >
+              <div class="stat-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
                 <div class="stat-label">This Week</div>
                 <div class="stat-value" id="salesWeek">£0.00</div>
               </div>
-              <div
-                class="stat-card"
-                style="
-                  background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);
-                "
-              >
+              <div class="stat-card" style="background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);">
                 <div class="stat-label">This Month</div>
                 <div class="stat-value" id="salesMonth">£0.00</div>
               </div>
-              <div
-                class="stat-card"
-                style="
-                  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-                "
-              >
+              <div class="stat-card" style="background: linear-gradient(135deg, #0f3460 0%, #1a4a7a 100%);">
+                <div class="stat-label">💰 Total (All Time)</div>
+                <div class="stat-value" id="salesTotal">£0.00</div>
+              </div>
+              <div class="stat-card" style="background: linear-gradient(135deg, #28a745 0%, #155724 100%);">
+                <div class="stat-label">💵 Cash Total</div>
+                <div class="stat-value" id="salesCashTotal">£0.00</div>
+              </div>
+              <div class="stat-card" style="background: linear-gradient(135deg, #007bff 0%, #004085 100%);">
+                <div class="stat-label">💳 Card Total</div>
+                <div class="stat-value" id="salesCardTotal">£0.00</div>
+              </div>
+              <div class="stat-card" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
                 <div class="stat-label">Total Orders</div>
                 <div class="stat-value" id="salesCount">0</div>
               </div>
-              <div
-                class="stat-card"
-                style="
-                  background: linear-gradient(135deg, #6f42c1 0%, #4a2c91 100%);
-                "
-              >
+              <div class="stat-card" style="background: linear-gradient(135deg, #6f42c1 0%, #4a2c91 100%);">
                 <div class="stat-label">Avg Order</div>
                 <div class="stat-value" id="salesAvg">£0.00</div>
               </div>
             </div>
           </section>
 
-          <!-- Date range filter -->
           <section class="stats-section">
             <h2>🔍 Date Range Filter</h2>
-            <div
-              style="
-                display: flex;
-                gap: 15px;
-                align-items: center;
-                flex-wrap: wrap;
-              "
-            >
+            <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
               <div>
-                <label
-                  for="breakdownFromDate"
-                  style="font-weight: 600; margin-right: 6px"
-                  >From:</label
-                >
-                <input
-                  type="date"
-                  id="breakdownFromDate"
-                  style="
-                    padding: 8px 12px;
-                    border-radius: 6px;
-                    border: 1px solid #ddd;
-                  "
-                />
+                <label for="breakdownFromDate" style="font-weight: 600; margin-right: 6px">From:</label>
+                <input type="date" id="breakdownFromDate" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd;" />
               </div>
               <div>
-                <label
-                  for="breakdownToDate"
-                  style="font-weight: 600; margin-right: 6px"
-                  >To:</label
-                >
-                <input
-                  type="date"
-                  id="breakdownToDate"
-                  style="
-                    padding: 8px 12px;
-                    border-radius: 6px;
-                    border: 1px solid #ddd;
-                  "
-                />
+                <label for="breakdownToDate" style="font-weight: 600; margin-right: 6px">To:</label>
+                <input type="date" id="breakdownToDate" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd;" />
               </div>
-              <button
-                id="breakdownClearBtn"
-                style="
-                  background: #6c757d;
-                  color: white;
-                  padding: 8px 16px;
-                  border: none;
-                  border-radius: 6px;
-                  cursor: pointer;
-                "
-              >
-                Clear
-              </button>
+              <button id="breakdownClearBtn" style="background: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">Clear</button>
             </div>
           </section>
 
@@ -812,69 +561,17 @@
           <section class="history-section">
             <h2>
               🧾 All Shop Orders
-              <small style="font-weight: normal; color: #666; font-size: 0.7em"
-                >(latest first)</small
-              >
+              <small style="font-weight: normal; color: #666; font-size: 0.7em">(latest first)</small>
             </h2>
 
             <div class="history-controls" style="margin-bottom: 15px">
-              <div
-                style="
-                  display: flex;
-                  gap: 10px;
-                  flex-wrap: wrap;
-                  align-items: center;
-                "
-              >
+              <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
                 <label for="shopSalesFilterDate">Filter by Date:</label>
-                <input
-                  type="date"
-                  id="shopSalesFilterDate"
-                  style="
-                    padding: 6px 12px;
-                    border-radius: 6px;
-                    border: 1px solid #ddd;
-                  "
-                />
-                <label for="shopSalesFilterCustomer" style="margin-left: 10px"
-                  >Customer:</label
-                >
-                <input
-                  type="text"
-                  id="shopSalesFilterCustomer"
-                  placeholder="Search name..."
-                  style="
-                    padding: 6px 12px;
-                    border-radius: 6px;
-                    border: 1px solid #ddd;
-                  "
-                />
-                <button
-                  id="shopSalesRefreshBtn"
-                  style="
-                    background: #28a745;
-                    color: white;
-                    padding: 8px 16px;
-                    border: none;
-                    border-radius: 6px;
-                    cursor: pointer;
-                  "
-                >
-                  🔄 Refresh
-                </button>
-                <button
-                  id="shopSalesClearFilterBtn"
-                  style="
-                    background: #6c757d;
-                    color: white;
-                    padding: 8px 16px;
-                    border: none;
-                    border-radius: 6px;
-                    cursor: pointer;
-                  "
-                >
-                  Clear Filter
-                </button>
+                <input type="date" id="shopSalesFilterDate" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd;" />
+                <label for="shopSalesFilterCustomer" style="margin-left: 10px">Customer:</label>
+                <input type="text" id="shopSalesFilterCustomer" placeholder="Search name..." style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd;" />
+                <button id="shopSalesRefreshBtn" style="background: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">🔄 Refresh</button>
+                <button id="shopSalesClearFilterBtn" style="background: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">Clear Filter</button>
               </div>
             </div>
 
@@ -885,151 +582,53 @@
         </div>
       </main>
 
-      <!-- EDIT PURCHASE MODAL -->
+      <!-- ============================================ -->
+      <!-- EDIT PURCHASE MODAL                           -->
+      <!-- ============================================ -->
       <div
         id="editPurchaseModal"
-        style="
-          display: none;
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: rgba(0, 0, 0, 0.5);
-          z-index: 1000;
-          justify-content: center;
-          align-items: center;
-        "
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;"
       >
         <div
-          style="
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 650px;
-            width: 95%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-          "
+          style="background: white; border-radius: 20px; padding: 30px; max-width: 650px; width: 95%; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);"
         >
           <button
             onclick="closeEditPurchaseModal()"
-            style="
-              position: absolute;
-              top: 15px;
-              right: 20px;
-              font-size: 28px;
-              background: none;
-              border: none;
-              cursor: pointer;
-              color: #999;
-            "
+            style="position: absolute; top: 15px; right: 20px; font-size: 28px; background: none; border: none; cursor: pointer; color: #999;"
           >
             &times;
           </button>
 
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 20px;
-              flex-wrap: wrap;
-              gap: 10px;
-            "
-          >
-            <h2 id="editModalTitle" style="color: #333; margin: 0">
-              📦 View Purchase Inventory
-            </h2>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+            <h2 id="editModalTitle" style="color: #333; margin: 0">📦 View Purchase Inventory</h2>
             <button
               id="editToggleBtn"
               onclick="toggleEditMode()"
-              style="
-                background: #ffc107;
-                color: #333;
-                padding: 8px 20px;
-                border: none;
-                border-radius: 8px;
-                cursor: pointer;
-                font-size: 14px;
-                font-weight: 600;
-              "
+              style="background: #ffc107; color: #333; padding: 8px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;"
             >
               ✏️ Edit
             </button>
           </div>
 
           <div id="editPurchaseViewMode" style="display: block">
-            <div
-              style="
-                background: #f8f9fa;
-                padding: 20px;
-                border-radius: 10px;
-                margin-bottom: 15px;
-              "
-            >
-              <div
-                style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px"
-              >
-                <div>
-                  <strong>📅 Date:</strong> <span id="viewPurchaseDate">-</span>
-                </div>
-                <div>
-                  <strong>🕐 Time:</strong> <span id="viewPurchaseTime">-</span>
-                </div>
-                <div>
-                  <strong>📦 Item:</strong> <span id="viewPurchaseItem">-</span>
-                </div>
-                <div>
-                  <strong>📊 Quantity:</strong>
-                  <span id="viewPurchaseQuantity">-</span>
-                  <span id="viewPurchaseUnit">-</span>
-                </div>
-                <div>
-                  <strong>💰 Cost Per Unit:</strong>
-                  <span id="viewPurchaseCost">-</span>
-                </div>
-                <div>
-                  <strong>💷 Total Cost:</strong>
-                  <span id="viewPurchaseTotal">-</span>
-                </div>
-                <div>
-                  <strong>🏢 Supplier:</strong>
-                  <span id="viewPurchaseSupplier">-</span>
-                </div>
-                <div>
-                  <strong>📂 Category:</strong>
-                  <span id="viewPurchaseCategory">-</span>
-                </div>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 15px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+                <div><strong>📅 Date:</strong> <span id="viewPurchaseDate">-</span></div>
+                <div><strong>🕐 Time:</strong> <span id="viewPurchaseTime">-</span></div>
+                <div><strong>📦 Item:</strong> <span id="viewPurchaseItem">-</span></div>
+                <div><strong>📊 Quantity:</strong> <span id="viewPurchaseQuantity">-</span> <span id="viewPurchaseUnit">-</span></div>
+                <div><strong>💰 Cost Per Unit:</strong> <span id="viewPurchaseCost">-</span></div>
+                <div><strong>💷 Total Cost:</strong> <span id="viewPurchaseTotal">-</span></div>
+                <div><strong>🏢 Supplier:</strong> <span id="viewPurchaseSupplier">-</span></div>
+                <div><strong>📂 Category:</strong> <span id="viewPurchaseCategory">-</span></div>
               </div>
-              <div style="margin-top: 12px">
-                <strong>📝 Notes:</strong> <span id="viewPurchaseNotes">-</span>
-              </div>
-              <div style="margin-top: 12px">
-                <strong>📎 Receipt:</strong>
-                <span id="viewPurchaseReceipt">-</span>
-              </div>
+              <div style="margin-top: 12px"><strong>📝 Notes:</strong> <span id="viewPurchaseNotes">-</span></div>
+              <div style="margin-top: 12px"><strong>📎 Receipt:</strong> <span id="viewPurchaseReceipt">-</span></div>
             </div>
 
-            <div
-              id="viewReceiptImage"
-              style="margin-top: 10px; display: none; text-align: center"
-            >
+            <div id="viewReceiptImage" style="margin-top: 10px; display: none; text-align: center">
               <strong>Receipt Image:</strong><br />
-              <img
-                id="viewReceiptImg"
-                src=""
-                alt="Receipt"
-                style="
-                  max-width: 100%;
-                  max-height: 300px;
-                  border-radius: 8px;
-                  border: 1px solid #ddd;
-                  margin-top: 5px;
-                "
-              />
+              <img id="viewReceiptImg" src="" alt="Receipt" style="max-width: 100%; max-height: 300px; border-radius: 8px; border: 1px solid #ddd; margin-top: 5px;" />
             </div>
           </div>
 
@@ -1050,24 +649,13 @@
 
               <div class="form-group">
                 <label for="editPurchaseItem">📦 Item Name</label>
-                <input
-                  type="text"
-                  id="editPurchaseItem"
-                  placeholder="e.g., Chicken Breast"
-                  required
-                />
+                <input type="text" id="editPurchaseItem" placeholder="e.g., Chicken Breast" required />
               </div>
 
               <div class="form-row">
                 <div class="form-group" style="flex: 1">
                   <label for="editPurchaseQuantity">📊 Quantity</label>
-                  <input
-                    type="number"
-                    id="editPurchaseQuantity"
-                    step="0.01"
-                    placeholder="0"
-                    required
-                  />
+                  <input type="number" id="editPurchaseQuantity" step="0.01" placeholder="0" required />
                 </div>
                 <div class="form-group" style="flex: 1">
                   <label for="editPurchaseUnit">Unit</label>
@@ -1085,36 +673,18 @@
 
               <div class="form-row">
                 <div class="form-group" style="flex: 1">
-                  <label for="editPurchaseCostPerUnit"
-                    >💰 Cost Per Unit (£)</label
-                  >
-                  <input
-                    type="number"
-                    id="editPurchaseCostPerUnit"
-                    step="0.01"
-                    placeholder="0.00"
-                    required
-                  />
+                  <label for="editPurchaseCostPerUnit">💰 Cost Per Unit (£)</label>
+                  <input type="number" id="editPurchaseCostPerUnit" step="0.01" placeholder="0.00" required />
                 </div>
                 <div class="form-group" style="flex: 1">
                   <label for="editPurchaseTotalCost">💷 Total Cost (£)</label>
-                  <input
-                    type="number"
-                    id="editPurchaseTotalCost"
-                    step="0.01"
-                    placeholder="0.00"
-                    required
-                  />
+                  <input type="number" id="editPurchaseTotalCost" step="0.01" placeholder="0.00" required />
                 </div>
               </div>
 
               <div class="form-group">
                 <label for="editPurchaseSupplier">🏢 Supplier (Optional)</label>
-                <input
-                  type="text"
-                  id="editPurchaseSupplier"
-                  placeholder="e.g., Wholesale Market"
-                />
+                <input type="text" id="editPurchaseSupplier" placeholder="e.g., Wholesale Market" />
               </div>
 
               <div class="form-group">
@@ -1133,54 +703,23 @@
 
               <div class="form-group">
                 <label for="editPurchaseNotes">📝 Notes (Optional)</label>
-                <input
-                  type="text"
-                  id="editPurchaseNotes"
-                  placeholder="Additional notes"
-                />
+                <input type="text" id="editPurchaseNotes" placeholder="Additional notes" />
               </div>
 
-              <div
-                id="editPurchaseMessage"
-                style="
-                  margin-top: 15px;
-                  padding: 10px;
-                  border-radius: 8px;
-                  display: none;
-                "
-              ></div>
+              <div id="editPurchaseMessage" style="margin-top: 15px; padding: 10px; border-radius: 8px; display: none;"></div>
 
               <div style="display: flex; gap: 10px; margin-top: 15px">
                 <button
                   type="submit"
                   id="editPurchaseSaveBtn"
-                  style="
-                    background: #28a745;
-                    color: white;
-                    padding: 12px 24px;
-                    border: none;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    font-size: 16px;
-                    font-weight: 600;
-                    flex: 1;
-                  "
+                  style="background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; flex: 1;"
                 >
                   💾 Update Purchase
                 </button>
                 <button
                   type="button"
                   onclick="cancelEditMode()"
-                  style="
-                    background: #6c757d;
-                    color: white;
-                    padding: 12px 24px;
-                    border: none;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    font-size: 16px;
-                    font-weight: 600;
-                  "
+                  style="background: #6c757d; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;"
                 >
                   Cancel
                 </button>
@@ -1200,5 +739,7 @@
     <script src="js/shopOrders.js"></script>
     <script src="js/shopOrdersApp.js"></script>
     <script src="js/shopSales.js"></script>
+    <script src="js/tabs.js"></script>
+    <script src="js/app.js"></script>
   </body>
 </html>

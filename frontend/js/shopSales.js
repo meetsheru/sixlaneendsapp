@@ -36,10 +36,9 @@ const ShopSalesModule = (() => {
     return div.innerHTML;
   };
 
-  // Monday as start of week
   const getWeekStart = (date) => {
     const d = new Date(date);
-    const day = d.getDay(); // 0=Sun
+    const day = d.getDay();
     const diff = day === 0 ? -6 : 1 - day;
     d.setDate(d.getDate() + diff);
     d.setHours(0, 0, 0, 0);
@@ -83,12 +82,15 @@ const ShopSalesModule = (() => {
     let today = 0,
       week = 0,
       month = 0,
-      total = 0;
+      total = 0,
+      cashTotal = 0,
+      cardTotal = 0;
     let count = 0;
 
     allOrders.forEach((o) => {
       const t = parseFloat(o.total_price) || 0;
       const orderDate = toLocalDateStr(new Date(o.created_at));
+      const method = o.payment_method || "cash";
 
       total += t;
       count += 1;
@@ -96,26 +98,36 @@ const ShopSalesModule = (() => {
       if (orderDate === todayStr) today += t;
       if (orderDate >= weekStr) week += t;
       if (orderDate >= monthStr) month += t;
+
+      if (method === "card") cardTotal += t;
+      else cashTotal += t;
     });
 
-    document.getElementById("salesToday").innerText = `£${today.toFixed(2)}`;
-    document.getElementById("salesWeek").innerText = `£${week.toFixed(2)}`;
-    document.getElementById("salesMonth").innerText = `£${month.toFixed(2)}`;
-    document.getElementById("salesCount").innerText = count;
-    document.getElementById("salesAvg").innerText = count
-      ? `£${(total / count).toFixed(2)}`
-      : "£0.00";
+    const setEl = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.innerText = val;
+    };
+
+    setEl("salesToday", `£${today.toFixed(2)}`);
+    setEl("salesWeek", `£${week.toFixed(2)}`);
+    setEl("salesMonth", `£${month.toFixed(2)}`);
+    setEl("salesTotal", `£${total.toFixed(2)}`);
+    setEl("salesCashTotal", `£${cashTotal.toFixed(2)}`);
+    setEl("salesCardTotal", `£${cardTotal.toFixed(2)}`);
+    setEl("salesCount", count);
+    setEl("salesAvg", count ? `£${(total / count).toFixed(2)}` : "£0.00");
   };
 
   // ---------- Daily Breakdown ----------
-    const renderDailyBreakdown = (orders) => {
-    const container = document.getElementById('shopDailyBreakdown');
+  const renderDailyBreakdown = (orders) => {
+    const container = document.getElementById("shopDailyBreakdown");
     if (!container) return;
 
     const map = new Map();
     orders.forEach((o) => {
       const dayKey = toLocalDateStr(new Date(o.created_at));
-      if (!map.has(dayKey)) map.set(dayKey, { key: dayKey, total: 0, count: 0, cash: 0, card: 0 });
+      if (!map.has(dayKey))
+        map.set(dayKey, { key: dayKey, total: 0, count: 0, cash: 0, card: 0 });
       const b = map.get(dayKey);
       const t = parseFloat(o.total_price) || 0;
       b.total += t;
@@ -124,7 +136,9 @@ const ShopSalesModule = (() => {
       else b.cash += t;
     });
 
-    const days = Array.from(map.values()).sort((a, b) => b.key.localeCompare(a.key));
+    const days = Array.from(map.values()).sort((a, b) =>
+      b.key.localeCompare(a.key)
+    );
 
     if (!days.length) {
       container.innerHTML = '<p class="loading">No sales in this period.</p>';
@@ -150,10 +164,23 @@ const ShopSalesModule = (() => {
 
     days.forEach((d) => {
       const isToday = d.key === todayStr;
-      const badge = isToday ? ' <span style="background:#28a745;color:white;padding:2px 8px;border-radius:10px;font-size:0.7em;margin-left:6px;">TODAY</span>' : '';
-      const rowStyle = isToday ? 'background:#e8f4ff; font-weight:600; border-bottom:1px solid #eee;' : 'border-bottom:1px solid #eee;';
-      const [y, m, dd] = d.key.split('-');
-      const readable = new Date(parseInt(y), parseInt(m) - 1, parseInt(dd)).toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+      const badge = isToday
+        ? ' <span style="background:#28a745;color:white;padding:2px 8px;border-radius:10px;font-size:0.7em;margin-left:6px;">TODAY</span>'
+        : "";
+      const rowStyle = isToday
+        ? "background:#e8f4ff; font-weight:600; border-bottom:1px solid #eee;"
+        : "border-bottom:1px solid #eee;";
+      const [y, m, dd] = d.key.split("-");
+      const readable = new Date(
+        parseInt(y),
+        parseInt(m) - 1,
+        parseInt(dd)
+      ).toLocaleDateString("en-GB", {
+        weekday: "short",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
 
       html += `
         <tr style="${rowStyle}">
@@ -190,8 +217,8 @@ const ShopSalesModule = (() => {
   };
 
   // ---------- Weekly Breakdown ----------
-    const renderWeeklyBreakdown = (orders) => {
-    const container = document.getElementById('shopWeeklyBreakdown');
+  const renderWeeklyBreakdown = (orders) => {
+    const container = document.getElementById("shopWeeklyBreakdown");
     if (!container) return;
 
     const map = new Map();
@@ -199,7 +226,8 @@ const ShopSalesModule = (() => {
       const orderDate = new Date(o.created_at);
       const weekStart = getWeekStart(orderDate);
       const key = toLocalDateStr(weekStart);
-      if (!map.has(key)) map.set(key, { key, total: 0, count: 0, cash: 0, card: 0 });
+      if (!map.has(key))
+        map.set(key, { key, total: 0, count: 0, cash: 0, card: 0 });
       const b = map.get(key);
       const t = parseFloat(o.total_price) || 0;
       b.total += t;
@@ -208,7 +236,9 @@ const ShopSalesModule = (() => {
       else b.cash += t;
     });
 
-    const weeks = Array.from(map.values()).sort((a, b) => b.key.localeCompare(a.key));
+    const weeks = Array.from(map.values()).sort((a, b) =>
+      b.key.localeCompare(a.key)
+    );
 
     if (!weeks.length) {
       container.innerHTML = '<p class="loading">No sales in this period.</p>';
@@ -233,15 +263,26 @@ const ShopSalesModule = (() => {
     `;
 
     weeks.forEach((w) => {
-      const [y, m, dd] = w.key.split('-');
+      const [y, m, dd] = w.key.split("-");
       const start = new Date(parseInt(y), parseInt(m) - 1, parseInt(dd));
       const end = getWeekEnd(start);
       const isCurrent = w.key === currentWeekStart;
-      const badge = isCurrent ? ' <span style="background:#28a745;color:white;padding:2px 8px;border-radius:10px;font-size:0.7em;margin-left:6px;">CURRENT</span>' : '';
-      const rowStyle = isCurrent ? 'background:#e8f4ff; font-weight:600; border-bottom:1px solid #eee;' : 'border-bottom:1px solid #eee;';
+      const badge = isCurrent
+        ? ' <span style="background:#28a745;color:white;padding:2px 8px;border-radius:10px;font-size:0.7em;margin-left:6px;">CURRENT</span>'
+        : "";
+      const rowStyle = isCurrent
+        ? "background:#e8f4ff; font-weight:600; border-bottom:1px solid #eee;"
+        : "border-bottom:1px solid #eee;";
 
-      const startStr = start.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
-      const endStr = end.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+      const startStr = start.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+      });
+      const endStr = end.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
 
       html += `
         <tr style="${rowStyle}">
@@ -278,15 +319,16 @@ const ShopSalesModule = (() => {
   };
 
   // ---------- Monthly Breakdown ----------
-   const renderMonthlyBreakdown = (orders) => {
-    const container = document.getElementById('shopMonthlyBreakdown');
+  const renderMonthlyBreakdown = (orders) => {
+    const container = document.getElementById("shopMonthlyBreakdown");
     if (!container) return;
 
     const map = new Map();
     orders.forEach((o) => {
       const d = new Date(o.created_at);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      if (!map.has(key)) map.set(key, { key, total: 0, count: 0, cash: 0, card: 0 });
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      if (!map.has(key))
+        map.set(key, { key, total: 0, count: 0, cash: 0, card: 0 });
       const b = map.get(key);
       const t = parseFloat(o.total_price) || 0;
       b.total += t;
@@ -295,7 +337,9 @@ const ShopSalesModule = (() => {
       else b.cash += t;
     });
 
-    const months = Array.from(map.values()).sort((a, b) => b.key.localeCompare(a.key));
+    const months = Array.from(map.values()).sort((a, b) =>
+      b.key.localeCompare(a.key)
+    );
 
     if (!months.length) {
       container.innerHTML = '<p class="loading">No sales in this period.</p>';
@@ -303,7 +347,7 @@ const ShopSalesModule = (() => {
     }
 
     const now = new Date();
-    const currentKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const currentKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
     let html = `
       <div style="overflow-x:auto;">
@@ -321,11 +365,18 @@ const ShopSalesModule = (() => {
     `;
 
     months.forEach((m) => {
-      const [y, mm] = m.key.split('-');
-      const readable = new Date(parseInt(y), parseInt(mm) - 1, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+      const [y, mm] = m.key.split("-");
+      const readable = new Date(parseInt(y), parseInt(mm) - 1, 1).toLocaleDateString(
+        "en-GB",
+        { month: "long", year: "numeric" }
+      );
       const isCurrent = m.key === currentKey;
-      const badge = isCurrent ? ' <span style="background:#28a745;color:white;padding:2px 8px;border-radius:10px;font-size:0.7em;margin-left:6px;">CURRENT</span>' : '';
-      const rowStyle = isCurrent ? 'background:#e8f4ff; font-weight:600; border-bottom:1px solid #eee;' : 'border-bottom:1px solid #eee;';
+      const badge = isCurrent
+        ? ' <span style="background:#28a745;color:white;padding:2px 8px;border-radius:10px;font-size:0.7em;margin-left:6px;">CURRENT</span>'
+        : "";
+      const rowStyle = isCurrent
+        ? "background:#e8f4ff; font-weight:600; border-bottom:1px solid #eee;"
+        : "border-bottom:1px solid #eee;";
 
       html += `
         <tr style="${rowStyle}">
@@ -361,7 +412,7 @@ const ShopSalesModule = (() => {
     container.innerHTML = html;
   };
 
-  // ---------- Order List (with edit/delete) ----------
+  // ---------- Order List ----------
   const applyOrderFilters = () => {
     const dateFilter = document.getElementById("shopSalesFilterDate").value;
     const customerFilter = document
@@ -396,10 +447,10 @@ const ShopSalesModule = (() => {
         <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
           <thead>
             <tr style="background:#667eea; color:white;">
-                            <th style="padding:10px; text-align:left;">🧾 Transaction</th>
+              <th style="padding:10px; text-align:left;">🧾 Transaction</th>
               <th style="padding:10px; text-align:left;">📅 Date</th>
               <th style="padding:10px; text-align:left;">🕐 Time</th>
-                            <th style="padding:10px; text-align:left;">👤 Customer</th>
+              <th style="padding:10px; text-align:left;">👤 Customer</th>
               <th style="padding:10px; text-align:left;">💳 Payment</th>
               <th style="padding:10px; text-align:left;">📦 Items</th>
               <th style="padding:10px; text-align:right;">💰 Total</th>
@@ -421,10 +472,10 @@ const ShopSalesModule = (() => {
 
       html += `
         <tr style="border-bottom:1px solid #eee;">
-                    <td style="padding:10px;"><strong style="font-family:monospace;color:#0f3460;">${o.transaction_id || "#" + o.id}</strong></td>
+          <td style="padding:10px;"><strong style="font-family:monospace;color:#0f3460;">${o.transaction_id || "#" + o.id}</strong></td>
           <td style="padding:10px;">${formatDate(o.created_at)}</td>
           <td style="padding:10px;">${formatTime(o.created_at)}</td>
-                    <td style="padding:10px;">${customer}</td>
+          <td style="padding:10px;">${customer}</td>
           <td style="padding:10px;">${
             (o.payment_method || "cash") === "card"
               ? '<span class="payment-badge card">💳 Card</span>'
@@ -447,7 +498,7 @@ const ShopSalesModule = (() => {
       btn.onclick = () => {
         const id = parseInt(btn.dataset.edit);
         const shopTabBtn = document.querySelector(
-          '.tab-btn[data-tab="shop-orders"]',
+          '.nav-item[data-tab="shop-orders"]'
         );
         if (shopTabBtn) shopTabBtn.click();
         setTimeout(() => {
@@ -457,7 +508,7 @@ const ShopSalesModule = (() => {
           ) {
             ShopOrderModule.loadOrderForEdit(id, allOrders);
           }
-        }, 100);
+        }, 150);
       };
     });
 
@@ -501,9 +552,7 @@ const ShopSalesModule = (() => {
 
   // ---------- Init ----------
   const init = () => {
-    document
-      .getElementById("shopSalesRefreshBtn")
-      ?.addEventListener("click", load);
+    document.getElementById("shopSalesRefreshBtn")?.addEventListener("click", load);
     document
       .getElementById("shopSalesFilterDate")
       ?.addEventListener("change", applyOrderFilters);
@@ -519,8 +568,7 @@ const ShopSalesModule = (() => {
       });
 
     const updateRange = () => {
-      dateRange.from =
-        document.getElementById("breakdownFromDate").value || null;
+      dateRange.from = document.getElementById("breakdownFromDate").value || null;
       dateRange.to = document.getElementById("breakdownToDate").value || null;
       const inRange = applyDateRange(allOrders);
       renderDailyBreakdown(inRange);
