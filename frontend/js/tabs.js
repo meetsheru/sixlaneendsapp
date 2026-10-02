@@ -36,9 +36,14 @@ function initTabs() {
 
       // Trigger data load for the tab
       switch (tabKey) {
+        case "earnings":
+          if (typeof loadEarnings === "function") loadEarnings();
+          if (typeof loadBalance === "function") loadBalance();
+          break;
         case "expenses":
           if (typeof loadExpenses === "function") loadExpenses();
           if (typeof loadBalance === "function") loadBalance();
+          console.log("💰 Called loadBalance() for expenses tab");
           break;
         case "inventory":
           if (typeof loadInventory === "function") loadInventory();
@@ -53,16 +58,13 @@ function initTabs() {
           if (typeof loadBalance === "function") loadBalance();
           break;
         case "shop-sales":
-          if (typeof ShopSalesModule !== "undefined" && ShopSalesModule.load) {
-            ShopSalesModule.load();
-          }
+          if (typeof ShopSalesModule !== "undefined") ShopSalesModule.load();
           break;
         case "shop-orders":
-          // Menu and history are initialized once at page load.
-          // Optionally refresh history here:
           if (typeof ShopOrderModule !== "undefined" && ShopOrderModule.loadHistory) {
             ShopOrderModule.loadHistory();
           }
+          if (typeof loadBalance === "function") loadBalance();
           break;
       }
     });
@@ -129,7 +131,6 @@ function bootstrapNav() {
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", bootstrapNav);
 } else {
-  // DOM already parsed (this script might be loaded dynamically)
   bootstrapNav();
 }
 

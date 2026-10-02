@@ -7,6 +7,11 @@ console.log("🚀 App module loaded...");
 function startApp() {
   console.log("✅ Starting application...");
 
+    if (typeof ShopItemReportModule !== "undefined") {
+    ShopItemReportModule.init();
+    console.log("✅ Item report initialized");
+  }
+
   // Initialize modules
   if (typeof initEarnings === "function") {
     initEarnings();
@@ -42,6 +47,10 @@ function startApp() {
   if (typeof loadAudit === "function") {
     loadAudit();
     console.log("✅ Audit loaded");
+  }
+
+    if (typeof ShopComponentReportModule !== "undefined") {
+    ShopComponentReportModule.init();
   }
 
   // Initialize tabs + dropdown navigation (safe to call once)

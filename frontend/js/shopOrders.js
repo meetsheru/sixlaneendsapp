@@ -255,7 +255,11 @@ const ShopOrderModule = (() => {
       updateUI();
       toggleCashBox();
 
-      await loadHistory();
+           await loadHistory();
+
+      if (typeof loadBalance === "function") {
+        loadBalance();
+      }
 
       if (typeof ShopSalesModule !== "undefined" && ShopSalesModule.load) {
         ShopSalesModule.load();

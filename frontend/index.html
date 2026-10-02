@@ -85,13 +85,23 @@
         <!-- ============================================ -->
         <!-- TAB 2: EXPENSES                               -->
         <!-- ============================================ -->
-        <div id="tab-expenses" class="tab-content">
-          <!-- Available to Spend Banner -->
-          <div id="availableToSpendCard" class="available-to-spend-card">
-            <div class="available-to-spend-icon">💰</div>
-            <div class="available-to-spend-text">
-              <div class="available-to-spend-label">Available to Spend</div>
-              <div class="available-to-spend-value" id="availableToSpendValue">£0.00</div>
+                <div id="tab-expenses" class="tab-content">
+
+          <!-- Earnings + Balance banners -->
+          <div class="balance-two-cards">
+            <div class="balance-card-item balance-card-earnings" id="earningsCard">
+              <div class="balance-card-icon">📈</div>
+              <div class="balance-card-text">
+                <div class="balance-card-label">All Time Earnings</div>
+                <div class="balance-card-value" id="allTimeEarningsValue">£0.00</div>
+              </div>
+            </div>
+            <div class="balance-card-item balance-card-balance" id="balanceCard">
+              <div class="balance-card-icon">💰</div>
+              <div class="balance-card-text">
+                <div class="balance-card-label">Balance</div>
+                <div class="balance-card-value" id="balanceValue">£0.00</div>
+              </div>
             </div>
           </div>
 
@@ -483,102 +493,201 @@
         <!-- ============================================ -->
         <!-- TAB 7: SHOP SALES                             -->
         <!-- ============================================ -->
+                <!-- ============================================ -->
+        <!-- TAB 7: SHOP SALES                             -->
+        <!-- ============================================ -->
         <div id="tab-shop-sales" class="tab-content">
-          <section class="stats-section">
-            <h2>📊 Shop Sales Summary</h2>
-            <div class="stats-grid">
-              <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <div class="stat-label">Today's Sales</div>
-                <div class="stat-value" id="salesToday">£0.00</div>
-              </div>
-              <div class="stat-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
-                <div class="stat-label">This Week</div>
-                <div class="stat-value" id="salesWeek">£0.00</div>
-              </div>
-              <div class="stat-card" style="background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);">
-                <div class="stat-label">This Month</div>
-                <div class="stat-value" id="salesMonth">£0.00</div>
-              </div>
-              <div class="stat-card" style="background: linear-gradient(135deg, #0f3460 0%, #1a4a7a 100%);">
-                <div class="stat-label">💰 Total (All Time)</div>
-                <div class="stat-value" id="salesTotal">£0.00</div>
-              </div>
-              <div class="stat-card" style="background: linear-gradient(135deg, #28a745 0%, #155724 100%);">
-                <div class="stat-label">💵 Cash Total</div>
-                <div class="stat-value" id="salesCashTotal">£0.00</div>
-              </div>
-              <div class="stat-card" style="background: linear-gradient(135deg, #007bff 0%, #004085 100%);">
-                <div class="stat-label">💳 Card Total</div>
-                <div class="stat-value" id="salesCardTotal">£0.00</div>
-              </div>
-              <div class="stat-card" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
-                <div class="stat-label">Total Orders</div>
-                <div class="stat-value" id="salesCount">0</div>
-              </div>
-              <div class="stat-card" style="background: linear-gradient(135deg, #6f42c1 0%, #4a2c91 100%);">
-                <div class="stat-label">Avg Order</div>
-                <div class="stat-value" id="salesAvg">£0.00</div>
-              </div>
-            </div>
-          </section>
+          <div class="sales-layout">
 
-          <section class="stats-section">
-            <h2>🔍 Date Range Filter</h2>
-            <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-              <div>
-                <label for="breakdownFromDate" style="font-weight: 600; margin-right: 6px">From:</label>
-                <input type="date" id="breakdownFromDate" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd;" />
+            <!-- ============================================ -->
+            <!-- LEFT: SIDEBAR MENU                            -->
+            <!-- ============================================ -->
+            <aside class="sales-sidebar">
+              <div class="sales-sidebar-title">📊 Shop Sales</div>
+
+              <button class="sales-nav-item active" data-sales-panel="summary">
+                <span class="sales-nav-icon">📊</span> Summary
+              </button>
+              <button class="sales-nav-item" data-sales-panel="daily">
+                <span class="sales-nav-icon">📆</span> Daily Breakdown
+              </button>
+              <button class="sales-nav-item" data-sales-panel="weekly">
+                <span class="sales-nav-icon">🗓️</span> Weekly Breakdown
+              </button>
+              <button class="sales-nav-item" data-sales-panel="monthly">
+                <span class="sales-nav-icon">📅</span> Monthly Breakdown
+              </button>
+              <button class="sales-nav-item" data-sales-panel="item-report">
+                <span class="sales-nav-icon">📦</span> Item Report
+              </button>
+                            <button class="sales-nav-item" data-sales-panel="components">
+                <span class="sales-nav-icon">🥘</span> Components
+              </button>
+              <button class="sales-nav-item" data-sales-panel="all-orders">
+                <span class="sales-nav-icon">🧾</span> All Orders
+              </button>
+            </aside>
+
+            <!-- ============================================ -->
+            <!-- RIGHT: CONTENT PANELS                         -->
+            <!-- ============================================ -->
+            <div class="sales-content">
+
+              <!-- PANEL: SUMMARY -->
+              <div class="sales-panel active" data-sales-content="summary">
+                <section class="stats-section">
+                  <h2>📊 Shop Sales Summary</h2>
+                  <div class="stats-grid">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                      <div class="stat-label">Today's Sales</div>
+                      <div class="stat-value" id="salesToday">£0.00</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                      <div class="stat-label">This Week</div>
+                      <div class="stat-value" id="salesWeek">£0.00</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);">
+                      <div class="stat-label">This Month</div>
+                      <div class="stat-value" id="salesMonth">£0.00</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #0f3460 0%, #1a4a7a 100%);">
+                      <div class="stat-label">💰 Total (All Time)</div>
+                      <div class="stat-value" id="salesTotal">£0.00</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #28a745 0%, #155724 100%);">
+                      <div class="stat-label">💵 Cash Total</div>
+                      <div class="stat-value" id="salesCashTotal">£0.00</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #007bff 0%, #004085 100%);">
+                      <div class="stat-label">💳 Card Total</div>
+                      <div class="stat-value" id="salesCardTotal">£0.00</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+                      <div class="stat-label">Total Orders</div>
+                      <div class="stat-value" id="salesCount">0</div>
+                    </div>
+                  </div>
+                </section>
+
+             
               </div>
-              <div>
-                <label for="breakdownToDate" style="font-weight: 600; margin-right: 6px">To:</label>
-                <input type="date" id="breakdownToDate" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd;" />
+
+              <!-- PANEL: DAILY -->
+              <div class="sales-panel" data-sales-content="daily">
+                <section class="stats-section">
+                  <h2>📆 Daily Breakdown</h2>
+                  <div id="shopDailyBreakdown">
+                    <p class="loading">Loading daily sales...</p>
+                  </div>
+                </section>
               </div>
-              <button id="breakdownClearBtn" style="background: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">Clear</button>
-            </div>
-          </section>
 
-          <section class="stats-section">
-            <h2>📆 Daily Breakdown</h2>
-            <div id="shopDailyBreakdown">
-              <p class="loading">Loading daily sales...</p>
-            </div>
-          </section>
-
-          <section class="stats-section">
-            <h2>🗓️ Weekly Breakdown</h2>
-            <div id="shopWeeklyBreakdown">
-              <p class="loading">Loading weekly sales...</p>
-            </div>
-          </section>
-
-          <section class="stats-section">
-            <h2>📅 Monthly Breakdown</h2>
-            <div id="shopMonthlyBreakdown">
-              <p class="loading">Loading monthly sales...</p>
-            </div>
-          </section>
-
-          <section class="history-section">
-            <h2>
-              🧾 All Shop Orders
-              <small style="font-weight: normal; color: #666; font-size: 0.7em">(latest first)</small>
-            </h2>
-
-            <div class="history-controls" style="margin-bottom: 15px">
-              <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                <label for="shopSalesFilterDate">Filter by Date:</label>
-                <input type="date" id="shopSalesFilterDate" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd;" />
-                <label for="shopSalesFilterCustomer" style="margin-left: 10px">Customer:</label>
-                <input type="text" id="shopSalesFilterCustomer" placeholder="Search name..." style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd;" />
-                <button id="shopSalesRefreshBtn" style="background: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">🔄 Refresh</button>
-                <button id="shopSalesClearFilterBtn" style="background: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">Clear Filter</button>
+              <!-- PANEL: WEEKLY -->
+              <div class="sales-panel" data-sales-content="weekly">
+                <section class="stats-section">
+                  <h2>🗓️ Weekly Breakdown</h2>
+                  <div id="shopWeeklyBreakdown">
+                    <p class="loading">Loading weekly sales...</p>
+                  </div>
+                </section>
               </div>
-            </div>
 
-            <div id="shopSalesList">
-              <p class="loading">Loading shop sales...</p>
+              <!-- PANEL: MONTHLY -->
+              <div class="sales-panel" data-sales-content="monthly">
+                <section class="stats-section">
+                  <h2>📅 Monthly Breakdown</h2>
+                  <div id="shopMonthlyBreakdown">
+                    <p class="loading">Loading monthly sales...</p>
+                  </div>
+                </section>
+              </div>
+
+              <!-- PANEL: ITEM REPORT -->
+              <div class="sales-panel" data-sales-content="item-report">
+                <section class="stats-section">
+                  <h2>📦 Item Sales Report</h2>
+
+                  <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px;">
+                    <label style="font-weight: 600;">Period:</label>
+                    <button class="report-range-btn active" data-range="today">Today</button>
+                    <button class="report-range-btn" data-range="week">This Week</button>
+                    <button class="report-range-btn" data-range="month">This Month</button>
+                    <button class="report-range-btn" data-range="all">All Time</button>
+
+                    <span style="margin-left: 12px;">
+                      <label for="itemReportFrom" style="font-weight: 600;">From:</label>
+                      <input type="date" id="itemReportFrom" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #ddd;" />
+                    </span>
+                    <span>
+                      <label for="itemReportTo" style="font-weight: 600;">To:</label>
+                      <input type="date" id="itemReportTo" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #ddd;" />
+                    </span>
+                    <button id="itemReportApplyBtn" style="background: #667eea; color: white; padding: 6px 14px; border: none; border-radius: 6px; cursor: pointer;">Apply</button>
+                  </div>
+
+                  <div id="itemReportSummary" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 12px;"></div>
+
+                  <div id="itemReportContainer">
+                    <p class="loading">Loading item report...</p>
+                  </div>
+                </section>
+              </div>
+
+                            <!-- PANEL: COMPONENTS (fish, chips, curry, etc.) -->
+              <div class="sales-panel" data-sales-content="components">
+                <section class="stats-section">
+                  <h2>🥘 Component Sales (Fish, Chips, Curry, etc.)</h2>
+                  <p style="color: #666; font-size: 0.9em; margin-bottom: 12px;">
+                    Total quantities across all orders — counts each item's ingredients.
+                  </p>
+
+                  <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px;">
+                    <label style="font-weight: 600;">Period:</label>
+                    <button class="component-range-btn active" data-range="today">Today</button>
+                    <button class="component-range-btn" data-range="week">This Week</button>
+                    <button class="component-range-btn" data-range="month">This Month</button>
+                    <button class="component-range-btn" data-range="all">All Time</button>
+                    <span style="margin-left: 12px;">
+                      <label for="componentFrom" style="font-weight: 600;">From:</label>
+                      <input type="date" id="componentFrom" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #ddd;" />
+                    </span>
+                    <span>
+                      <label for="componentTo" style="font-weight: 600;">To:</label>
+                      <input type="date" id="componentTo" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #ddd;" />
+                    </span>
+                    <button id="componentApplyBtn" style="background: #667eea; color: white; padding: 6px 14px; border: none; border-radius: 6px; cursor: pointer;">Apply</button>
+                  </div>
+
+                  <div id="componentReportContainer">
+                    <p class="loading">Loading component report...</p>
+                  </div>
+                </section>
+              </div>
+
+              <!-- PANEL: ALL ORDERS -->
+              <div class="sales-panel" data-sales-content="all-orders">
+                <section class="history-section">
+                  <h2>🧾 All Shop Orders <small style="font-weight: normal; color: #666; font-size: 0.7em;">(latest first)</small></h2>
+
+                  <div class="history-controls" style="margin-bottom: 15px;">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                      <label for="shopSalesFilterDate">Filter by Date:</label>
+                      <input type="date" id="shopSalesFilterDate" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd;" />
+                      <label for="shopSalesFilterCustomer" style="margin-left: 10px;">Customer:</label>
+                      <input type="text" id="shopSalesFilterCustomer" placeholder="Search name..." style="padding: 6px 12px; border-radius: 6px; border: 1px solid #ddd;" />
+                      <button id="shopSalesRefreshBtn" style="background: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">🔄 Refresh</button>
+                      <button id="shopSalesClearFilterBtn" style="background: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">Clear Filter</button>
+                    </div>
+                  </div>
+
+                  <div id="shopSalesList">
+                    <p class="loading">Loading shop sales...</p>
+                  </div>
+                </section>
+              </div>
+
             </div>
-          </section>
+          </div>
         </div>
       </main>
 
@@ -738,7 +847,10 @@
     <script src="js/shopMenu.js"></script>
     <script src="js/shopOrders.js"></script>
     <script src="js/shopOrdersApp.js"></script>
-    <script src="js/shopSales.js"></script>
+        <script src="js/shopSales.js"></script>
+    <script src="js/shopItemReport.js"></script>
+     <script src="js/shopComponentReport.js"></script> 
+    <script src="js/salesPanels.js"></script>  
     <script src="js/tabs.js"></script>
     <script src="js/app.js"></script>
   </body>

@@ -30,10 +30,11 @@ router.get('/menu/items', async (req, res) => {
          CASE category
            WHEN 'MAINS'     THEN 1
            WHEN 'SIDES'     THEN 2
-           WHEN 'BUTTY'     THEN 3
-           WHEN 'KIDS MENU' THEN 4
-           WHEN 'DRINKS'    THEN 5
-           WHEN 'BURGERS'   THEN 6
+           WHEN 'EXTRAS'    THEN 3
+           WHEN 'BUTTY'     THEN 4
+           WHEN 'KIDS MENU' THEN 5
+           WHEN 'DRINKS'    THEN 6
+           WHEN 'BURGERS'   THEN 7
            ELSE 99
          END,
          sort_order,
@@ -43,6 +44,49 @@ router.get('/menu/items', async (req, res) => {
   } catch (err) {
     console.error('GET /shop-orders/menu/items error:', err);
     res.status(500).json({ error: 'Failed to fetch menu' });
+  }
+});
+
+// ============================================
+// GET item sales report (aggregates items across all orders)
+// Query params: from (YYYY-MM-DD), to (YYYY-MM-DD)
+// ============================================
+router.get('/reports/items', async (req, res) => {
+  try {
+    const { from, to } = req.query;
+
+    // Build WHERE clause for date filtering
+    const conditions = [];
+    const params = [];
+    if (from) {
+      params.push(from);
+      conditions.push(`created_at >= $${params.length}::date`);
+    }
+    if (to) {
+      params.push(to);
+      conditions.push(`created_at < ($${params.length}::date + INTERVAL '1 day')`);
+    }
+    const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
+
+    // Expand items JSONB into rows, then aggregate
+    const query = `
+      SELECT
+        item->>'name'   AS item_name,
+        item->>'category' AS category,
+        SUM((item->>'qty')::int) AS qty_sold,
+        SUM((item->>'qty')::numeric * (item->>'price')::numeric) AS revenue
+      FROM shop_orders,
+           jsonb_array_elements(items) AS item
+      ${where}
+      GROUP BY item->>'name', item->>'category'
+      ORDER BY qty_sold DESC, item_name ASC
+    `;
+
+    const result = await db.pool.query(query, params);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('GET /shop-orders/reports/items error:', err);
+    res.status(500).json({ error: 'Failed to generate item report' });
   }
 });
 
@@ -149,6 +193,50 @@ router.delete('/:id', async (req, res) => {
   } catch (err) {
     console.error('DELETE /shop-orders/:id error:', err);
     res.status(500).json({ error: 'Failed to delete order' });
+  }
+});
+
+// ============================================
+// GET component/ingredient sales report
+// Counts how many times each tagged component appears across all orders
+// Query params: from, to
+// ============================================
+router.get('/reports/components', async (req, res) => {
+  try {
+    const { from, to } = req.query;
+
+    const conditions = [];
+    const params = [];
+    if (from) {
+      params.push(from);
+      conditions.push(`so.created_at >= $${params.length}::date`);
+    }
+    if (to) {
+      params.push(to);
+      conditions.push(`so.created_at < ($${params.length}::date + INTERVAL '1 day')`);
+    }
+    const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
+
+    const query = `
+      SELECT
+        comp.value AS component,
+        SUM((item->>'qty')::int) AS qty_sold
+      FROM shop_orders so,
+           jsonb_array_elements(so.items) AS item
+      LEFT JOIN shop_menu_items smi
+             ON smi.name = item->>'name'
+            AND smi.category = item->>'category'
+      CROSS JOIN LATERAL jsonb_array_elements_text(COALESCE(smi.components, '[]'::jsonb)) AS comp(value)
+      ${where}
+      GROUP BY comp.value
+      ORDER BY qty_sold DESC, component ASC
+    `;
+
+    const result = await db.pool.query(query, params);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('GET /shop-orders/reports/components error:', err);
+    res.status(500).json({ error: 'Failed to generate component report' });
   }
 });
 
